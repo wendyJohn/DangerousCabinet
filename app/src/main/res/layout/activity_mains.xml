@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/video_identify_faces_btn"
+                android:layout_width="250dip"
+                android:layout_height="60dip"
+                android:layout_margin="10dp"
+                android:text=" 视频vs人脸库(1 : n)"/>
+
+            <Button
+                android:id="@+id/bt_multiThread"
+                android:layout_width="250dip"
+                android:layout_height="60dip"
+                android:layout_below="@id/video_identify_faces_btn"
+                android:layout_margin="10dp"
+                android:text="多线程使用案例"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/user_groud_manager_btn"
+                android:layout_width="250dip"
+                android:layout_height="60dip"
+                android:layout_below="@id/bt_multiThread"
+                android:layout_margin="10dp"
+                android:text="用户及组管理"/>
+
+            <Button
+                android:id="@+id/liveness_setting_btn"
+                android:layout_width="250dip"
+                android:layout_height="60dip"
+                android:layout_below="@id/user_groud_manager_btn"
+                android:layout_margin="10dp"
+                android:text="活体检测模式设置"/>
+
+            <Button
+                android:id="@+id/feature_setting_btn"
+                android:layout_width="250dip"
+                android:layout_height="60dip"
+                android:layout_below="@id/liveness_setting_btn"
+                android:layout_margin="10dp"
+                android:text="特征抽取模型设置"/>
+
+            <Button
+                android:id="@+id/device_activate_btn"
+                android:layout_width="250dip"
+                android:layout_height="60dip"
+                android:layout_below="@id/feature_setting_btn"
+                android:layout_margin="10dp"
+                android:text="设备激活"/>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</RelativeLayout>
