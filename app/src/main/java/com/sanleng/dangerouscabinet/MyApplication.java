@@ -7,6 +7,9 @@ import com.sanleng.dangerouscabinet.utils.GetMac;
 
 public class MyApplication extends Application {
     public static final int REQUEST_CODE_ASK_PERMISSIONS = 0x1231232;
+    public static final int MESSAGE_BANLANCEDATA = 0x1231542;
+    public static final String BROADCAST_ACTION_DISC = "com.permissions.myf_broadcast";
+    public static final String BROADCAST_PERMISSION_DISC = "com.permissions.MYF_BROADCAST";
     public static String MAC = "";
     public static boolean isFirst;
     public static MyApplication instance;

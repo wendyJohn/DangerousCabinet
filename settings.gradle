@@ -1,1 +1,1 @@
-include ':app', ':facelibrary', ':orbbec'
+include ':app', ':facelibrary', ':orbbec', ':hipraiseanimationlib'

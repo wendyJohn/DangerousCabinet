@@ -55,6 +55,7 @@ import com.hb.dialog.myDialog.MyImageMsgDialog;
 import com.orbbec.view.OpenGLView;
 import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.face.utils.GlobalFaceTypeModel;
+import com.sanleng.dangerouscabinet.fid.entity.Lock;
 import com.sanleng.dangerouscabinet.utils.PreferenceUtils;
 import com.wang.avi.AVLoadingIndicatorView;
 
@@ -172,6 +173,8 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
     private TextView textb;
     private ImageView imagea;
     private ImageView imageb;
+    public static final int TYPE_RGB_DEPTH_LIVENSS = 4;
+    public static final String TYPE_LIVENSS = "TYPE_LIVENSS";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -191,7 +194,8 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
             groupId = intent.getStringExtra("group_id");
             checkedValues = intent.getStringExtra("checkedValues");
         }
-
+        com.baidu.idl.facesdk.utils.PreferencesUtil.putInt(TYPE_LIVENSS, TYPE_RGB_DEPTH_LIVENSS);//设置摄像头样式；
+        com.baidu.idl.facesdk.utils.PreferencesUtil.putInt(GlobalSet.TYPE_CAMERA, GlobalSet.ORBBECATLAS);//设置摄像头样式；
         DBManager.getInstance().init(this);
         loadFeature2Memery();
 
@@ -839,7 +843,6 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                             Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                             matchAvatorIv.setImageBitmap(bitmap);
                             avi.hide();
-                            System.out.println("========人脸识别名称========" + user.getUserInfo());
                             //第一个人脸名称
                             String faceone = PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne");
                             if (faceone.equals("暂无人脸名称")) {
@@ -863,15 +866,13 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                                         connectAnimation.start();
                                         myImageMsgDialog.show();
                                         //此处进行开锁
-//                            new Handler().postDelayed(new Runnable() {
-//                                public void run() {
-//                                    // 等待2000毫秒后销毁此页面，并提示识别成功
-//                                    Intent intent = new Intent();
-//                                    intent.putExtra("checkedValues", checkedValues);
-//                                    setResult(0x99, intent);
-//                                    finish();
-//                                }
-//                            }, 1600);
+                                        new Handler().postDelayed(new Runnable() {
+                                            public void run() {
+                                                // 等待2000毫秒后销毁此页面，并开门
+                                                Lock.getInstance().sendA();
+                                                finish();
+                                            }
+                                        }, 2000);
                                     }
                                 }
                             }
