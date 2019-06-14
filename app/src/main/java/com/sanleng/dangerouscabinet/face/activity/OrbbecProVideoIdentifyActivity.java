@@ -159,7 +159,6 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
     private byte[] depthData;
     private boolean mSurfaceCreated = false;
 
-    private String checkedValues;
     private ImageView iv;
     private AVLoadingIndicatorView avi;
     private LinearLayout youte;
@@ -192,7 +191,6 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
         Intent intent = getIntent();
         if (intent != null) {
             groupId = intent.getStringExtra("group_id");
-            checkedValues = intent.getStringExtra("checkedValues");
         }
         com.baidu.idl.facesdk.utils.PreferencesUtil.putInt(TYPE_LIVENSS, TYPE_RGB_DEPTH_LIVENSS);//设置摄像头样式；
         com.baidu.idl.facesdk.utils.PreferencesUtil.putInt(GlobalSet.TYPE_CAMERA, GlobalSet.ORBBECATLAS);//设置摄像头样式；

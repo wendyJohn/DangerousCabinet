@@ -56,5 +56,7 @@ dependencies {
     implementation 'cn.jiguang.sdk:jcore:1.1.9'
     //Eventbus
     implementation 'org.greenrobot:eventbus:3.0.0'
+    //Cardview
+    implementation 'com.android.support:cardview-v7:28.0.0'
 
 }

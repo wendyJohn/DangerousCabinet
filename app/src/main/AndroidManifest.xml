@@ -48,6 +48,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".ui.activity.MaterialDetails" />
+
+
         <!-- 替换原生极光推送接收器 -->
         <receiver
             android:name=".jpush.MyReceiver"
