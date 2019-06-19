@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="30dp"
+        android:drawableLeft="@drawable/back_icon"
+        android:drawablePadding="3dp"
+        android:gravity="center"
+        android:text="返回首页"
+        android:textColor="#3be0ef"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/returnitems"
+            android:layout_width="450dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:background="@color/actionsheet_blue"
+            android:gravity="center"
+            android:text="归还物资"
+            android:textColor="@color/white"
+            android:textSize="35sp" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/removeitems"
+            android:layout_width="450dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:background="@color/sdl_button_pressed_light"
+            android:gravity="center"
+            android:text="取出物资"
+            android:textColor="@color/white"
+            android:textSize="35sp" />
+    </LinearLayout>
+</LinearLayout>

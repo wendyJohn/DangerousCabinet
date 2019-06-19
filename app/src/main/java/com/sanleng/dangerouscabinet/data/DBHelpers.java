@@ -76,10 +76,11 @@ public class DBHelpers extends SQLiteOpenHelper {
 //	}
 
 	//更新物资状态
-	public int update(String epc, String staus) {
+	public int update(String epc, String staus,String balancedata) {
 		SQLiteDatabase db = getWritableDatabase();
 		ContentValues updatedValues = new ContentValues();
 		updatedValues.put("Staus", staus);
+		updatedValues.put("Balancedata", balancedata);
 		String where = "Epc=" +"'" + epc + "'";
 		return db.update("materialtable", updatedValues, where, null);
 	}

@@ -17,6 +17,7 @@ import com.sanleng.dangerouscabinet.MainActivity;
 import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.data.SDBHelper;
 import com.sanleng.dangerouscabinet.net.URLs;
+import com.sanleng.dangerouscabinet.utils.Utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,15 +25,12 @@ import java.io.InputStream;
 
 public abstract class BaseActivity extends AppCompatActivity {
     public CountDownTimer countDownTimer;
-    private long advertisingTime = 300* 1000;//无操作时跳转首页时间
+    private long advertisingTime = 300 * 1000;//无操作时跳转首页时间
     public Context context;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getSupportActionBar().hide();
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //隐藏虚拟按键
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -50,11 +48,11 @@ public abstract class BaseActivity extends AppCompatActivity {
             case MotionEvent.ACTION_DOWN: //有按下动作时取消定时
                 if (countDownTimer != null) {
                     countDownTimer.cancel();
-                    System.out.println("=================="+"取消定时");
+                    System.out.println("==================" + "取消定时");
                 }
                 break;
             case MotionEvent.ACTION_UP: //抬起时启动定时
-                System.out.println("=================="+"开始定时");
+                System.out.println("==================" + "开始定时");
                 startTime();
                 break;
         }
@@ -71,14 +69,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                 public void onTick(long millisUntilFinished) {
                     if (!BaseActivity.this.isFinishing()) {
                         int remainTime = (int) (millisUntilFinished / 1000L);
-                        System.out.println("=========倒计时========="+remainTime+"秒");
+                        System.out.println("=========倒计时=========" + remainTime + "秒");
                     }
                 }
 
                 @Override
                 public void onFinish() { //定时完成后的操作
                     //跳转到页面
-                    Intent intent=new Intent(context, MainActivity.class);
+                    Intent intent = new Intent(context, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
                     finish();
@@ -95,7 +93,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onResume();
         //显示是启动定时
         startTime();
-        if (URLs.m_bCopyDB) {
+        if (Utils.foFile() == false) {
             new Thread(runnables).start();
         }
     }
@@ -106,7 +104,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         //当activity不在前台是停止定时
         if (countDownTimer != null) {
             countDownTimer.cancel();
-            System.out.println("=================="+"取消定时");
+            System.out.println("==================" + "取消定时");
         }
     }
 
@@ -116,10 +114,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         //销毁时停止定时
         if (countDownTimer != null) {
             countDownTimer.cancel();
-            countDownTimer= null;
-            System.out.println("=================="+"取消定时");
+            countDownTimer = null;
+            System.out.println("==================" + "取消定时");
         }
     }
+
     /**
      * 隐藏虚拟按键，并且全屏
      */
@@ -153,7 +152,6 @@ public abstract class BaseActivity extends AppCompatActivity {
                 }
                 fos.close();
                 is.close();
-                URLs.m_bCopyDB = false;
             } catch (Exception e) {
                 e.printStackTrace();
             }

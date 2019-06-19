@@ -19,9 +19,9 @@ public class Lock implements RS232ReadCallback {
     private int bits = 8;
     private char event = 0;
     private int stopbits = 1;
-    RS232Controller rs232Controller = RS232Controller.getInstance();
+    RS232Controller rs232Controllers =new RS232Controller();
     // 通过RS232Controller实例获取串口
-    int flag = rs232Controller.Rs232_Open(file, baud, bits, event, stopbits, this);
+    int flag = rs232Controllers.Rs232_Open(file, baud, bits, event, stopbits, this);
 
     private Boolean result = true;
     private byte[] abc = {(byte) 0x68, 0X01, 0X01, 0X02, 0X00, 0X00, (byte) 0x16};
@@ -49,17 +49,17 @@ public class Lock implements RS232ReadCallback {
     }
 
     public void init() {
-        rs232Controller = RS232Controller.getInstance();
+        rs232Controllers = RS232Controller.getInstance();
         connect();
     }
 
     private void connect() {
-        if (null == rs232Controller) {
-            rs232Controller = RS232Controller.getInstance();
+        if (null == rs232Controllers) {
+            rs232Controllers = RS232Controller.getInstance();
         }
-        if (rs232Controller != null) {
+        if (rs232Controllers != null) {
             // 通过RS232Controller实例获取串口
-            int flag = rs232Controller.Rs232_Open(file, baud, bits, event,
+            int flag = rs232Controllers.Rs232_Open(file, baud, bits, event,
                     stopbits, this);
             if (flag == 0) {
                 LogUtil.d(TAG, "connect_Success");
@@ -71,14 +71,14 @@ public class Lock implements RS232ReadCallback {
 
 
     public void disconnect() {
-        if (null != rs232Controller) {
-            rs232Controller.Rs232_Close();
-            rs232Controller = null;
+        if (null != rs232Controllers) {
+            rs232Controllers.Rs232_Close();
+            rs232Controllers = null;
         }
     }
 
     private void send(byte[] data) {
-        rs232Controller.Rs232_Write(data);
+        rs232Controllers.Rs232_Write(data);
     }
 
 

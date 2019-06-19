@@ -12,6 +12,8 @@ import android.net.NetworkInfo;
 import android.os.Environment;
 import android.util.Log;
 
+import com.sanleng.dangerouscabinet.data.SDBHelper;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -170,7 +172,7 @@ public class Utils {
         return bmp;
     }
 
-    public static byte[] getByte(Context context,String imageName) {
+    public static byte[] getByte(Context context, String imageName) {
         try {
             InputStream is = context.getAssets().open(imageName);
             byte[] fileBytes = new byte[is.available()];
@@ -182,6 +184,7 @@ public class Utils {
             return null;
         }
     }
+
     public static void printfByte(byte[] content) {
         StringBuilder stringBuilder = new StringBuilder();
         for (byte c : content) {
@@ -213,7 +216,6 @@ public class Utils {
         }
         return fileList;
     }
-
 
 
     /**
@@ -312,5 +314,39 @@ public class Utils {
             }
         }
         return State;
+    }
+
+    //判断网络是否连接
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity == null) {
+            Log.i("NetWorkState", "Unavailabel");
+            return false;
+        } else {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null) {
+                for (int i = 0; i < info.length; i++) {
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+                        Log.i("NetWorkState", "Availabel");
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    //判断db文件是否存在
+    public static boolean foFile() {
+        boolean result = false;
+        String databaseFilename = SDBHelper.DB_DIRS + File.separator + "dangerconfig.db";
+        File file1 = new File(databaseFilename);
+        if (file1.exists()) {
+            // 如果已经存在就为true
+            result = true;
+        } else {
+            result = false;
+        }
+        return result;
     }
 }

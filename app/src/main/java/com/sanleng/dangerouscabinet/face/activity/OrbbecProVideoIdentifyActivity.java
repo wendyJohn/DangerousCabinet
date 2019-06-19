@@ -56,6 +56,8 @@ import com.orbbec.view.OpenGLView;
 import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.face.utils.GlobalFaceTypeModel;
 import com.sanleng.dangerouscabinet.fid.entity.Lock;
+import com.sanleng.dangerouscabinet.ui.activity.PasswordAuthentication;
+import com.sanleng.dangerouscabinet.ui.activity.ReturnOperation;
 import com.sanleng.dangerouscabinet.utils.PreferenceUtils;
 import com.wang.avi.AVLoadingIndicatorView;
 
@@ -172,8 +174,6 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
     private TextView textb;
     private ImageView imagea;
     private ImageView imageb;
-    public static final int TYPE_RGB_DEPTH_LIVENSS = 4;
-    public static final String TYPE_LIVENSS = "TYPE_LIVENSS";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -186,24 +186,21 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
         mContext = this;
         PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceOne", "暂无人脸名称");
         PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceTwo", "暂无人脸名称");
-//        registerHomeListener();
-
+//      registerHomeListener();
         Intent intent = getIntent();
         if (intent != null) {
             groupId = intent.getStringExtra("group_id");
         }
-        com.baidu.idl.facesdk.utils.PreferencesUtil.putInt(TYPE_LIVENSS, TYPE_RGB_DEPTH_LIVENSS);//设置摄像头样式；
-        com.baidu.idl.facesdk.utils.PreferencesUtil.putInt(GlobalSet.TYPE_CAMERA, GlobalSet.ORBBECATLAS);//设置摄像头样式；
+
         DBManager.getInstance().init(this);
         loadFeature2Memery();
-
     }
 
     private void findView() {
         textureView = findViewById(R.id.texture_view);
         textureView.setOpaque(false);
         mDepthGLView = (OpenGLView) findViewById(R.id.depthGlView);
-//        mRgbGLView = (OpenGLView) findViewById(R.id.rgbGlView);
+//       mRgbGLView = (OpenGLView) findViewById(R.id.rgbGlView);
         mTextureView = (TextureView) findViewById(R.id.camera_surface_view);
         mTextureView.setOpaque(false);
         mTextureView.setKeepScreenOn(true);
@@ -868,6 +865,8 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                                             public void run() {
                                                 // 等待2000毫秒后销毁此页面，并开门
                                                 Lock.getInstance().sendA();
+                                                Intent intent=new Intent(OrbbecProVideoIdentifyActivity.this,ReturnOperation.class);
+                                                startActivity(intent);
                                                 finish();
                                             }
                                         }, 2000);

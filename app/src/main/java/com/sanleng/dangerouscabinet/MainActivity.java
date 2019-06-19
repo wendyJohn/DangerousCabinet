@@ -5,8 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,9 +14,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
-import android.util.Log;
-import android.util.SparseArray;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,29 +29,17 @@ import com.baidu.aip.utils.GlobalSet;
 import com.baidu.aip.utils.PreferencesUtil;
 import com.sanleng.dangerouscabinet.broadcast.Receiver;
 import com.sanleng.dangerouscabinet.face.activity.LivenessSettingActivity;
-import com.sanleng.dangerouscabinet.face.activity.MainsActivity;
 import com.sanleng.dangerouscabinet.face.activity.OrbbecProVideoIdentifyActivity;
 import com.sanleng.dangerouscabinet.face.activity.RgbVideoIdentityActivity;
-import com.sanleng.dangerouscabinet.fid.entity.Balance;
 import com.sanleng.dangerouscabinet.fid.serialportapi.ReaderServiceImpl;
 import com.sanleng.dangerouscabinet.fid.service.ReaderService;
 import com.sanleng.dangerouscabinet.fid.tool.ReaderUtil;
-import com.sanleng.dangerouscabinet.ui.activity.MaterialDetails;
-import com.sanleng.dangerouscabinet.utils.MessageEvent;
+import com.sanleng.dangerouscabinet.ui.activity.PasswordAuthentication;
+import com.sanleng.dangerouscabinet.ui.activity.SearchActivity;
+import com.sanleng.dangerouscabinet.utils.Utils;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.limlee.hipraiseanimationlib.HiPraise;
-import org.limlee.hipraiseanimationlib.HiPraiseAnimationView;
-import org.limlee.hipraiseanimationlib.HiPraiseWithCallback;
-import org.limlee.hipraiseanimationlib.OnDrawCallback;
-import org.limlee.hipraiseanimationlib.base.IPraise;
-
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import cn.jpush.android.api.JPushInterface;
 
@@ -61,21 +48,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView search;
     private TextView faceverification;
     private TextView time;
-
+    private ImageView iv_rotate;
+    private ImageView iv_rotates;
+    private ImageView fan;
+    private ImageView net;
+    private ImageView lock;
     private ReaderService readerService = new ReaderServiceImpl();
     private Receiver receiver;
-    private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int HEARDS[] = new int[]{
-            R.mipmap.heart_1,
-            R.mipmap.heart_2,
-            R.mipmap.heart_3,
-            R.mipmap.heart_2,
-            R.mipmap.heart_1,
-            R.mipmap.heart_1
-    };
-    private SparseArray<SoftReference<Bitmap>> mBitmapCacheArray = new SparseArray<>();
-    private HiPraiseAnimationView mHiPraiseAnimationViewa;
-    private HiPraiseAnimationView mHiPraiseAnimationViewb;
+    public static final int TYPE_RGB_DEPTH_LIVENSS = 4;
+    public static final String TYPE_LIVENSS = "TYPE_LIVENSS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,81 +68,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         registeredBroadcasting(); //广播注册
         checkPermission();//7.0以上添加存储与相机的权限
         fid();
+        PreferencesUtil.putInt(TYPE_LIVENSS, TYPE_RGB_DEPTH_LIVENSS);//设置摄像头样式；
+        PreferencesUtil.putInt(GlobalSet.TYPE_CAMERA, GlobalSet.ORBBECATLAS);//设置摄像头样式；
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Balance.getInstance().init();
-        mHiPraiseAnimationViewa.start(); //添加点赞动画之前要先开始启动绘制
-        mHiPraiseAnimationViewb.start();
-        mHandler.postDelayed(r, 1000);//延时100毫秒
         new TimeThread().start();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mHiPraiseAnimationViewa.stop(); //停止绘制点赞动画
-        mHiPraiseAnimationViewb.stop();
-    }
-
-    /**
-     * 添加点赞动画
-     */
-    private void addPraise() {
-        final IPraise hiPraise = new HiPraise(getHeartBitmap());
-        mHiPraiseAnimationViewa.addPraise(hiPraise);
-        mHiPraiseAnimationViewb.addPraise(hiPraise);
-    }
-
-    /**
-     * 添加具有回调的点赞动画
-     */
-    private void addPraiseWithCallback() {
-        final IPraise hiPraiseWithCallback = new HiPraiseWithCallback(getHeartBitmap(),
-                new OnDrawCallback() {
-                    @Override
-                    public void onFinish() {
-                        Log.d(TAG, "绘制完成了！");
-                    }
-                });
-        mHiPraiseAnimationViewa.addPraise(hiPraiseWithCallback);
-        mHiPraiseAnimationViewb.addPraise(hiPraiseWithCallback);
-    }
-
-    private Bitmap getHeartBitmap() {
-        final int id = HEARDS[new Random().nextInt(HEARDS.length)];
-        SoftReference<Bitmap> bitmapRef = mBitmapCacheArray.get(id);
-        Bitmap retBitmap = null;
-        if (null != bitmapRef) {
-            retBitmap = bitmapRef.get();
-        }
-        if (null == retBitmap) {
-            retBitmap = BitmapFactory.decodeResource(getResources(),
-                    id);
-            mBitmapCacheArray.put(id, new SoftReference<>(retBitmap));
-        }
-        return retBitmap;
     }
 
 
     private void initView() {
+        //绑定唯一标识
+        JPushInterface.setAlias(MainActivity.this, 1, MyApplication.getMac());
         passwordauthentication = findViewById(R.id.passwordauthentication);
         search = findViewById(R.id.search);
         faceverification = findViewById(R.id.faceverification);
+        time = findViewById(R.id.time);
+        iv_rotate = findViewById(R.id.iv_rotate);
+        iv_rotates = findViewById(R.id.iv_rotates);
+        fan = findViewById(R.id.fan);
+        net = findViewById(R.id.net);
+        lock = findViewById(R.id.lock);
+        Animation anim = AnimationUtils.loadAnimation(this,
+                R.anim.rotate_circle_anim);
+        iv_rotate.startAnimation(anim);// 开始动画
+        Animation anims = AnimationUtils.loadAnimation(this,
+                R.anim.rotate_circle_anims);
+        iv_rotates.startAnimation(anims);// 开始动画
+        Animation fananim = AnimationUtils.loadAnimation(this,
+                R.anim.rotate_circle_anim);
+        fan.startAnimation(fananim);// 开始动画
         passwordauthentication.setOnClickListener(this);
         search.setOnClickListener(this);
         faceverification.setOnClickListener(this);
-        time = findViewById(R.id.time);
-
-        EventBus.getDefault().register(this);
-        System.out.println("========MAC==========" + MyApplication.getMac());
-        //绑定唯一标识
-        JPushInterface.setAlias(MainActivity.this, 1, MyApplication.getMac());
-
-        mHiPraiseAnimationViewa = findViewById(R.id.praise_animationa);
-        mHiPraiseAnimationViewb = findViewById(R.id.praise_animationb);
     }
 
 
@@ -171,11 +125,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void initStart() {
             }
-
             @Override
             public void initSuccess() {
             }
-
             @Override
             public void initFail(int errorCode, String msg) {
             }
@@ -251,24 +203,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    /**
-     * 接收EventBus返回数据
-     *
-     * @param messageEvent
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void backData(MessageEvent messageEvent) {
-        switch (messageEvent.getTAG()) {
-            case MyApplication.MESSAGE_BANLANCEDATA:
-                String data = messageEvent.getMessage();
-                String str = data.replaceAll(" ", "");
-                String balancedata = str.substring(str.indexOf("+") + 1);
-                System.out.println("=======秤的重量==========" + balancedata);
-                break;
-        }
-    }
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -277,10 +211,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             readerService.disconnect(ReaderUtil.readers);
             ReaderUtil.readers = null;
         }
-        if (EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().unregister(this);
         unregisterReceiver(receiver);
-        mHandler.removeCallbacks(r);
 
     }
 
@@ -290,18 +221,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             //密码认证
             case R.id.passwordauthentication:
-
+                startActivity(new Intent(this, PasswordAuthentication.class));
                 break;
             //搜索查询
             case R.id.search:
-
+                startActivity(new Intent(this, SearchActivity.class));
                 break;
             //人脸认证
             case R.id.faceverification:
 //                Intent intent = new Intent(MainActivity.this, MainsActivity.class);
 //                startActivity(intent);
                 // 使用人脸1：n时使用
-                mHandler.removeCallbacks(r);
                 DBManager.getInstance().init(this);
                 livnessTypeTip();
                 if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager
@@ -314,15 +244,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    Handler mHandler = new Handler();
-    Runnable r = new Runnable() {
-        @Override
-        public void run() {
-            addPraiseWithCallback();
-            //每隔1s循环执行run方法
-            mHandler.postDelayed(this, 200);
-        }
-    };
 
     public class TimeThread extends Thread {
         @Override
@@ -351,6 +272,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     CharSequence sysTimeStr = DateFormat
                             .format("HH:mm", sysTime);
                     time.setText(sysTimeStr);
+                    if (Utils.isNetworkAvailable(MainActivity.this) == true) {
+                        net.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.networkin_icon));
+                    } else {
+                        net.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.networkon_icon));
+                    }
                     break;
                 default:
                     break;
@@ -358,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
-    //===============================人脸识别======================
+    //===============================人脸识别============================
     private String[] items;
     public void showSingleAlertDialog() {
         List<Group> groupList = FaceApi.getInstance().getGroupList(0, 1000);

@@ -1,10 +1,14 @@
-package com.sanleng.dangerouscabinet.utils;
+package com.sanleng.dangerouscabinet.ui.activity;
 
 import android.database.Cursor;
+import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
 
+import com.sanleng.dangerouscabinet.MyApplication;
+import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.data.DBHelpers;
+import com.sanleng.dangerouscabinet.fid.entity.Balance;
 import com.sanleng.dangerouscabinet.fid.entity.EPC;
 import com.sanleng.dangerouscabinet.fid.serialportapi.ReaderServiceImpl;
 import com.sanleng.dangerouscabinet.fid.service.CallBack;
@@ -12,28 +16,83 @@ import com.sanleng.dangerouscabinet.fid.service.CallBackStopReadCard;
 import com.sanleng.dangerouscabinet.fid.service.ReaderService;
 import com.sanleng.dangerouscabinet.fid.tool.ReaderUtil;
 import com.sanleng.dangerouscabinet.fid.util.DataFilter;
+import com.sanleng.dangerouscabinet.utils.Inventory;
+import com.sanleng.dangerouscabinet.utils.MessageEvent;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 盘点物资
+ * 归还物资
  */
-public class Inventory extends AppCompatActivity {
+public class ReturnItems extends BaseActivity {
     ReaderService readerService = new ReaderServiceImpl();
     private List<EPC> listEPC;
     private List<String> listEpc;
     private DBHelpers mOpenHelper;
-    //正常盘点数据
-    public void invOnce() {
-        mOpenHelper = new DBHelpers(this);
+    private TextView weighingresults;
+    private TextView chemicalrfid;
+    private TextView chemicalname;
+    private TextView lastweighing;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_returnitems);
+        initView();
+    }
+
+    //初始化
+    private void initView() {
+        EventBus.getDefault().register(this);
+        weighingresults = findViewById(R.id.weighingresults);
+        chemicalrfid = findViewById(R.id.chemicalrfid);
+        chemicalname = findViewById(R.id.chemicalname);
+        lastweighing = findViewById(R.id.lastweighing);
+    }
+
+    @Override
+    protected void onResume() {
+        //电子秤连接
+        Balance.getInstance().init();
+        super.onResume();
+    }
+
+
+    /**
+     * 接收EventBus返回数据
+     *
+     * @param messageEvent
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void backData(MessageEvent messageEvent) {
+        switch (messageEvent.getTAG()) {
+            case MyApplication.MESSAGE_BANLANCEDATA:
+                String data = messageEvent.getMessage();
+                String str = data.replaceAll(" ", "");
+                String balancedata = str.substring(str.indexOf("+") + 1);
+                System.out.println("=======秤的重量==========" + balancedata);
+                invOnces(balancedata.trim());
+                weighingresults.setText("本次称重结果：" + balancedata.trim());
+                break;
+        }
+    }
+
+
+    @Override
+    protected int getLayoutRes() {
+        return R.layout.activity_returnitems;
+    }
+
+    //获取电子秤上的物资信息
+    public void invOnces(final String balancedata) {
+        mOpenHelper = new DBHelpers(ReturnItems.this);
         listEPC = new ArrayList<>();
         listEpc = new ArrayList<>();
-
         if (null == ReaderUtil.readers) {
             System.out.println("请先连接设备");
             return;
@@ -52,11 +111,13 @@ public class Inventory extends AppCompatActivity {
                 for (int i = 0; i < listEPC.size(); i++) {
                     String epc = listEPC.get(i).getEpc();
                     String myant = listEPC.get(i).getAnt();
-                    listEpc.add(epc);
+                    if (myant.equals("4")) {
+                        listEpc.add(epc);
+                    }
                 }
-
-                JSONArray array = new JSONArray();
-                Cursor cursor = mOpenHelper.query("select * from materialtable", null);
+                String epc = listEpc.get(0);
+                System.out.println("=======EPC======="+epc);
+                Cursor cursor = mOpenHelper.query("select * from materialtable where Epc=" + "'" + epc + "'", null);
                 while (cursor.moveToNext()) {
                     String epcs = cursor.getString(cursor.getColumnIndex("Epc"));
                     String staus = cursor.getString(cursor.getColumnIndex("Staus"));
@@ -65,51 +126,17 @@ public class Inventory extends AppCompatActivity {
                     String StationName = cursor.getString(cursor.getColumnIndex("StationName"));
                     String StationId = cursor.getString(cursor.getColumnIndex("StationId"));
                     String StorageLocation = cursor.getString(cursor.getColumnIndex("StorageLocation"));
-                    JSONObject object = new JSONObject();
-                    Boolean exists = ((List) listEpc).contains(epcs);
-                    if (exists) {
-                        System.out.println(epcs + "有卡号信息！");
-                        //当有卡时判断状态，如果是出库状态则认为现在为入库。
-//                        if (staus.equals("emergencystation_out")) {
-//                            System.out.println(epcs + "物资入库");
-//                            mOpenHelper.update(epcs, "emergencystation_in");
-//                            try {
-//                                object.put("ids", ids);
-//                                object.put("state", "emergencystation_in");
-//                                object.put("agentName", PreferenceUtils.getString(this, "FaceUserName"));
-//                                object.put("stationId", StationId);
-//                                object.put("storageLocation", StorageLocation);
-//                                array.put(object);
-//                            } catch (JSONException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-                    }
-                    //当无卡时则认为现在为出库，并修改物资为出库状态。
-//                    else {
-//                        if (staus.equals("emergencystation_in")) {
-//                            System.out.println(epcs + "物资出库");
-//                            mOpenHelper.update(epcs, "emergencystation_out");
-//                            try {
-//                                object.put("ids", ids);
-//                                object.put("state", "emergencystation_out");
-////                                object.put("agentName", PreferenceUtils.getString(this, "Faceone"));
-//                                object.put("stationId", StationId);
-//                                object.put("storageLocation", StorageLocation);
-//                                array.put(object);
-//                            } catch (JSONException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//
-//                    }
+                    String Name = cursor.getString(cursor.getColumnIndex("Name"));
+                    String Balancedata = cursor.getString(cursor.getColumnIndex("Balancedata"));
+
+                    chemicalrfid.setText("化学品RFID：" + epcs);
+                    chemicalname.setText("化学品名称：" + Name);
+                    lastweighing.setText("上次称重结果：" + Balancedata);
+                    mOpenHelper.update(epcs, "emergencystation_in", balancedata);
+                    //提交服务器
+
                 }
                 cursor.close();
-                //提交盘点数据
-                System.out.println("========Array大小============" + array.length());
-                if (array.length() > 0) {
-//                    Submission(array);
-                }
             }
         }, 2000);
     }
@@ -159,5 +186,13 @@ public class Inventory extends AppCompatActivity {
                 DataFilter.dataFilter(listEPC2, epc, rssi, ant, deviceNo, direction);
             }
         });
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
     }
 }
