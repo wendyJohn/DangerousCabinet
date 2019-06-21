@@ -7,9 +7,10 @@ import android.widget.TextView;
 
 import com.sanleng.dangerouscabinet.MainActivity;
 import com.sanleng.dangerouscabinet.R;
+import com.sanleng.dangerouscabinet.utils.TTSUtils;
 
 /**
- * 归还操作
+ * 归与还操作
  */
 public class ReturnOperation extends BaseActivity implements View.OnClickListener {
     private TextView returnitems;
@@ -21,6 +22,7 @@ public class ReturnOperation extends BaseActivity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_returnoperation);
         initView();
+        TTSUtils.getInstance().speak("请选择归还或取出操作");
     }
 
     //初始化

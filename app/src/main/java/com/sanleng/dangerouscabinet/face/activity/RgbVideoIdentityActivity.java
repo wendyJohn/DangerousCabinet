@@ -41,6 +41,7 @@ import com.baidu.aip.utils.PreferencesUtil;
 import com.baidu.idl.facesdk.model.FaceInfo;
 import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.face.utils.GlobalFaceTypeModel;
+import com.sanleng.dangerouscabinet.utils.TTSUtils;
 
 import java.io.File;
 import java.util.List;
@@ -103,7 +104,6 @@ public class RgbVideoIdentityActivity extends Activity implements View.OnClickLi
         if (intent != null) {
             groupId = intent.getStringExtra("group_id");
         }
-
     }
 
     private void findView() {

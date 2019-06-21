@@ -22,6 +22,7 @@ import com.sanleng.dangerouscabinet.ui.adapter.DangerousChemicalsAdapter;
 import com.sanleng.dangerouscabinet.ui.bean.DangerousChemicals;
 import com.sanleng.dangerouscabinet.utils.CharacterParser;
 import com.sanleng.dangerouscabinet.utils.PinyinComparator;
+import com.sanleng.dangerouscabinet.utils.TTSUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,10 +89,12 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         mylist = new ArrayList<>();
         Cursor cursor = mOpenHelper.query("select * from materialtable", null);
         while (cursor.moveToNext()) {
+            String epc = cursor.getString(cursor.getColumnIndex("Epc"));
             String name = cursor.getString(cursor.getColumnIndex("Name"));
             String ids = cursor.getString(cursor.getColumnIndex("Ids"));
             String balancedata = cursor.getString(cursor.getColumnIndex("Balancedata"));
             DangerousChemicals bean = new DangerousChemicals();
+            bean.setRfid(epc);
             bean.setName(name);
             bean.setIds(ids);
             bean.setBalancedata(balancedata);
@@ -108,6 +111,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String name = ((DangerousChemicals) dangerousChemicalsAdapter.getItem(position)).getName();
                 System.out.println(name);
+                TTSUtils.getInstance().speak("高锰酸钾（Potassium permanganate）为黑紫色、细长的棱形结晶或颗粒，带蓝色的金属光泽；无臭；与某些有机物或易氧化物接触，易发生爆炸，溶于水、碱液，微溶于甲醇、丙酮、硫酸，分子式为KMnO4，分子量为158.03400。熔点为240°C，稳定，但接触易燃材料可能引起火灾。要避免的物质包括还原剂、强酸、有机材料、易燃材料、过氧化物、醇类和化学活性金属。");
             }
         });
     }

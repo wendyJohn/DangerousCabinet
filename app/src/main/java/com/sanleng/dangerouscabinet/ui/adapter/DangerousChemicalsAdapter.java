@@ -71,17 +71,20 @@ public class DangerousChemicalsAdapter extends BaseAdapter {
         } else {
             hold = (ViewHold) convertView.getTag();
         }
+        hold.rfid = convertView.findViewById(R.id.rfid);
         hold.name = convertView.findViewById(R.id.name);
         hold.id = convertView.findViewById(R.id.id);
         hold.weight = convertView.findViewById(R.id.weight);
 
-        hold.name.setText("化学品名称:" + list.get(position).getName());
-        hold.id.setText("化学品ID:" + list.get(position).getIds());
-        hold.weight.setText("当前重量:" + list.get(position).getBalancedata());
+        hold.rfid.setText(list.get(position).getRfid());
+        hold.name.setText("化学品名称  > " + list.get(position).getName());
+        hold.id.setText("化学品ID  > " + list.get(position).getIds());
+        hold.weight.setText("当前重量  > " + list.get(position).getBalancedata());
         return convertView;
     }
 
     static class ViewHold {
+        public TextView rfid;
         public TextView name;
         public TextView id;
         public TextView weight;

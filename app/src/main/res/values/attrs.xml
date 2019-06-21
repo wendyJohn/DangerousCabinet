@@ -15,4 +15,12 @@
         <attr name="pv_color" format="color" />
         <attr name="pv_background" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="stepview">
+        <attr name="textUnDoColor" format="color" />
+        <attr name="textDoingColor" format="color" />
+        <attr name="textCompletedColor" format="color" />
+        <attr name="textSize" format="dimension" />
+    </declare-styleable>
+
 </resources>

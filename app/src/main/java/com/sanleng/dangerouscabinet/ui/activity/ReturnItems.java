@@ -18,6 +18,7 @@ import com.sanleng.dangerouscabinet.fid.tool.ReaderUtil;
 import com.sanleng.dangerouscabinet.fid.util.DataFilter;
 import com.sanleng.dangerouscabinet.utils.Inventory;
 import com.sanleng.dangerouscabinet.utils.MessageEvent;
+import com.sanleng.dangerouscabinet.utils.TTSUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -44,6 +45,7 @@ public class ReturnItems extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_returnitems);
         initView();
+        TTSUtils.getInstance().speak("请放入所要称重归还的危化品");
     }
 
     //初始化
@@ -133,8 +135,8 @@ public class ReturnItems extends BaseActivity {
                     chemicalname.setText("化学品名称：" + Name);
                     lastweighing.setText("上次称重结果：" + Balancedata);
                     mOpenHelper.update(epcs, "emergencystation_in", balancedata);
+                    TTSUtils.getInstance().speak("本次称重物品是"+Name+"重量为"+balancedata+"请确认");
                     //提交服务器
-
                 }
                 cursor.close();
             }

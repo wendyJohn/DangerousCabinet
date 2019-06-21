@@ -14,10 +14,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,8 +29,11 @@ import com.baidu.aip.entity.Group;
 import com.baidu.aip.manager.FaceSDKManager;
 import com.baidu.aip.utils.GlobalSet;
 import com.baidu.aip.utils.PreferencesUtil;
+import com.iflytek.cloud.Setting;
+import com.iflytek.cloud.SpeechUtility;
 import com.sanleng.dangerouscabinet.broadcast.Receiver;
 import com.sanleng.dangerouscabinet.face.activity.LivenessSettingActivity;
+import com.sanleng.dangerouscabinet.face.activity.MainsActivity;
 import com.sanleng.dangerouscabinet.face.activity.OrbbecProVideoIdentifyActivity;
 import com.sanleng.dangerouscabinet.face.activity.RgbVideoIdentityActivity;
 import com.sanleng.dangerouscabinet.fid.serialportapi.ReaderServiceImpl;
@@ -36,9 +41,11 @@ import com.sanleng.dangerouscabinet.fid.service.ReaderService;
 import com.sanleng.dangerouscabinet.fid.tool.ReaderUtil;
 import com.sanleng.dangerouscabinet.ui.activity.PasswordAuthentication;
 import com.sanleng.dangerouscabinet.ui.activity.SearchActivity;
+import com.sanleng.dangerouscabinet.utils.TTSUtils;
 import com.sanleng.dangerouscabinet.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import cn.jpush.android.api.JPushInterface;
@@ -53,10 +60,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView fan;
     private ImageView net;
     private ImageView lock;
+    private TextView voc;
+    private TextView temperature;
+    private TextView humidity;
+    private TextView quality;
+    private String vocdata;
+    private String temperaturedata;
+    private String humiditydata;
+    private ImageView vocstate;
+    private ImageView temperaturestate;
+    private ImageView humiditystate;
+    private RelativeLayout upmain;
+
     private ReaderService readerService = new ReaderServiceImpl();
     private Receiver receiver;
     public static final int TYPE_RGB_DEPTH_LIVENSS = 4;
     public static final String TYPE_LIVENSS = "TYPE_LIVENSS";
+    private List<String> permissionList = null;
+    private static final String TAG = MainActivity.class.getSimpleName();
+    int a = 1;//测试数据
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,23 +89,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         addGroup();//强制添加分组；
         registeredBroadcasting(); //广播注册
         checkPermission();//7.0以上添加存储与相机的权限
-        fid();
+        fid();//RFID串口连接
         PreferencesUtil.putInt(TYPE_LIVENSS, TYPE_RGB_DEPTH_LIVENSS);//设置摄像头样式；
         PreferencesUtil.putInt(GlobalSet.TYPE_CAMERA, GlobalSet.ORBBECATLAS);//设置摄像头样式；
-
+        addData();//获取voc,温度，湿度。
+        initTTS();//语音注册
+        new TimeThread().start();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        new TimeThread().start();
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
     }
 
     @Override
@@ -91,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStop();
     }
 
-
+    //初始化
     private void initView() {
         //绑定唯一标识
         JPushInterface.setAlias(MainActivity.this, 1, MyApplication.getMac());
@@ -104,6 +126,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fan = findViewById(R.id.fan);
         net = findViewById(R.id.net);
         lock = findViewById(R.id.lock);
+        voc = findViewById(R.id.voc);
+        quality = findViewById(R.id.quality);
+        temperature = findViewById(R.id.temperature);
+        humidity = findViewById(R.id.humidity);
+        vocstate = findViewById(R.id.vocstate);
+        temperaturestate = findViewById(R.id.temperaturestate);
+        humiditystate = findViewById(R.id.humiditystate);
+        upmain = findViewById(R.id.upmain);
+
         Animation anim = AnimationUtils.loadAnimation(this,
                 R.anim.rotate_circle_anim);
         iv_rotate.startAnimation(anim);// 开始动画
@@ -118,6 +149,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         faceverification.setOnClickListener(this);
     }
 
+    //获取VOC,温度，湿度
+    private void addData() {
+        if (a == 1) {
+            vocdata = "56";
+            temperaturedata = "26";
+            humiditydata = "60";
+            voc.setText(vocdata);
+            temperature.setText(temperaturedata);
+            humidity.setText(humiditydata);
+            quality.setText("优");
+            vocstate.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.arrowac_icon));
+            temperaturestate.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.arrowas_icon));
+            humiditystate.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.arrowa_icon));
+            upmain.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.upmain_icon));
+            a = 2;
+            return;
+        }
+
+        if (a == 2) {
+            vocdata = "45";
+            temperaturedata = "30";
+            humiditydata = "55";
+            voc.setText(vocdata);
+            temperature.setText(temperaturedata);
+            humidity.setText(humiditydata);
+            quality.setText("良");
+            vocstate.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.arrowa_icon));
+            temperaturestate.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.arrowas_icon));
+            humiditystate.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.arrowas_icon));
+            upmain.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.upmainb_icon));
+            a = 3;
+            return;
+        }
+        if (a == 3) {
+            vocdata = "66";
+            temperaturedata = "40";
+            humiditydata = "80";
+            voc.setText(vocdata);
+            temperature.setText(temperaturedata);
+            humidity.setText(humiditydata);
+            quality.setText("差");
+            vocstate.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.arrowa_icon));
+            temperaturestate.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.arrowa_icon));
+            humiditystate.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.arrowa_icon));
+            upmain.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.upmainc_icon));
+            a = 1;
+            return;
+        }
+
+
+    }
 
     //初始化人脸
     private void initFaceeSDK() {
@@ -125,9 +207,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void initStart() {
             }
+
             @Override
             public void initSuccess() {
             }
+
             @Override
             public void initFail(int errorCode, String msg) {
             }
@@ -161,6 +245,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    //初始化语音合成
+    private void initTTS() {
+        //讯飞语音播报平台
+        String key = "5d0b232a";
+        SpeechUtility.createUtility(this, "appid=" + key);//=号后面写自己应用的APPID
+        Setting.setShowLog(true); //设置日志开关（默认为true），设置成false时关闭语音云SDK日志打印
+        TTSUtils.getInstance().init(); //初始化工具类
+    }
+
     //广播注册
     private void registeredBroadcasting() {
         receiver = new Receiver();
@@ -187,6 +280,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return;
             }
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            addListPermission();
+            boolean isGranted = false;//是否全部授权
+            // 权限是否已经 授权 GRANTED---授权  DINIED---拒绝
+            Iterator<String> iterator = permissionList.iterator();
+            while (iterator.hasNext()) {
+                // 检查该权限是否已经获取
+                int granted = ContextCompat.checkSelfPermission(this, iterator.next());
+                if (granted == PackageManager.PERMISSION_GRANTED) {
+                    iterator.remove();//已授权则remove
+                }
+            }
+            if (permissionList.size() > 0) {
+                // 如果没有授予该权限，就去提示用户请求
+                //将List转为数组
+                String[] permissions = permissionList.toArray(new String[permissionList.size()]);
+                // 开始提交请求权限
+                ActivityCompat.requestPermissions(this, permissions, 0x10);
+            } else {
+                Log.i("zhh", "权限已申请");
+            }
+
+        }
     }
 
     @Override
@@ -196,11 +313,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //可以遍历每个权限设置情况
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //这里写你需要相关权限的操作
+
                 } else {
                     Toast.makeText(MainActivity.this, "权限没有开启", Toast.LENGTH_SHORT).show();
                 }
+                break;
+            case 0x10:
+                if (grantResults.length > 0 && ifGrantResult(grantResults)) {
+                    Toast.makeText(this, "同意权限申请", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(this, "权限被拒绝了", Toast.LENGTH_SHORT).show();
+//                    finish();
+                }
+                break;
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private boolean ifGrantResult(int[] grants) {
+        boolean isGrant = true;
+        for (int grant : grants) {
+            if (grant == PackageManager.PERMISSION_DENIED) {
+                isGrant = false;
+                break;
+            }
+        }
+        return isGrant;
+    }
+
+
+    //敏感权限添加
+    private void addListPermission() {
+        if (null == permissionList) {
+            permissionList = new ArrayList<>();
+            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            permissionList.add(Manifest.permission.READ_PHONE_STATE);
+            permissionList.add(Manifest.permission.RECORD_AUDIO);
+        }
     }
 
     @Override
@@ -226,6 +376,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //搜索查询
             case R.id.search:
                 startActivity(new Intent(this, SearchActivity.class));
+//                TTSUtils.getInstance().speak("请注意，当前温度过高");
+                TTSUtils.getInstance().speak("请注意，当前门未关起，请注意，当前门未关起");
                 break;
             //人脸认证
             case R.id.faceverification:
@@ -277,6 +429,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     } else {
                         net.setBackground(MainActivity.this.getResources().getDrawable(R.mipmap.networkon_icon));
                     }
+                    addData();
                     break;
                 default:
                     break;
@@ -286,6 +439,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //===============================人脸识别============================
     private String[] items;
+
     public void showSingleAlertDialog() {
         List<Group> groupList = FaceApi.getInstance().getGroupList(0, 1000);
         if (groupList.size() <= 0) {

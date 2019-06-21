@@ -29,8 +29,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -52,13 +51,14 @@ import com.baidu.aip.utils.GlobalSet;
 import com.baidu.aip.utils.PreferencesUtil;
 import com.baidu.idl.facesdk.model.FaceInfo;
 import com.hb.dialog.myDialog.MyImageMsgDialog;
+import com.lhz.stateprogress.StateProgressView;
 import com.orbbec.view.OpenGLView;
 import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.face.utils.GlobalFaceTypeModel;
 import com.sanleng.dangerouscabinet.fid.entity.Lock;
-import com.sanleng.dangerouscabinet.ui.activity.PasswordAuthentication;
 import com.sanleng.dangerouscabinet.ui.activity.ReturnOperation;
 import com.sanleng.dangerouscabinet.utils.PreferenceUtils;
+import com.sanleng.dangerouscabinet.utils.TTSUtils;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.openni.Device;
@@ -161,7 +161,6 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
     private byte[] depthData;
     private boolean mSurfaceCreated = false;
 
-    private ImageView iv;
     private AVLoadingIndicatorView avi;
     private LinearLayout youte;
     public CountDownTimer countdowntimer;
@@ -169,11 +168,9 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
     private TextView countdown;
     private TextView back;
     private TextView register;
-
-    private TextView texta;
-    private TextView textb;
-    private ImageView imagea;
-    private ImageView imageb;
+    private List<String> str;
+    private StateProgressView spv;
+    private Button nextstep;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -191,12 +188,21 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
         if (intent != null) {
             groupId = intent.getStringExtra("group_id");
         }
-
+        TTSUtils.getInstance().speak("请正视摄像头位置");
         DBManager.getInstance().init(this);
         loadFeature2Memery();
     }
 
     private void findView() {
+        str = new ArrayList<>();
+        spv = findViewById(R.id.spv);
+        str.add("请识别第一张人脸");
+        str.add("请识别第二张人脸");
+        str.add("识别完成");
+        spv.setItems(str, 3, 200);
+        spv.startAnim(-1, 1000);
+
+        nextstep = findViewById(R.id.nextstep);
         textureView = findViewById(R.id.texture_view);
         textureView.setOpaque(false);
         mDepthGLView = (OpenGLView) findViewById(R.id.depthGlView);
@@ -221,19 +227,11 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
 
         register = findViewById(R.id.register);
         back = findViewById(R.id.back);
-        iv = findViewById(R.id.iv_rotate);
-        Animation anim = AnimationUtils.loadAnimation(this,
-                R.anim.rotate_circle_anim);
-        iv.startAnimation(anim);// 开始动画
         avi = findViewById(R.id.avi);
         countdown = findViewById(R.id.countdown);
         back.setOnClickListener(this);
+        nextstep.setOnClickListener(this);
 
-
-        texta = findViewById(R.id.text_a);
-        textb = findViewById(R.id.textb);
-        imagea = findViewById(R.id.image_a);
-        imageb = findViewById(R.id.imageb);
     }
 
 
@@ -456,6 +454,34 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
             case R.id.back:
                 finish();
                 break;
+            case R.id.nextstep:
+                String stra = PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne");
+                String strb = PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceTwo");
+                if (stra.equals("暂无人脸名称") || strb.equals("暂无人脸名称")) {
+                    TTSUtils.getInstance().speak("请先完成双人人脸认证");
+                } else {
+                    TTSUtils.getInstance().speak("正在开锁，请稍后");
+                    MyImageMsgDialog myImageMsgDialog = new MyImageMsgDialog(OrbbecProVideoIdentifyActivity.this).builder()
+                            .setImageLogo(getResources().getDrawable(R.mipmap.ic_launcher))
+                            .setMsg("双人认证成功，开锁中...");
+                    ImageView logoImg = myImageMsgDialog.getLogoImg();
+                    logoImg.setImageResource(R.drawable.connect_animation);
+                    AnimationDrawable connectAnimation = (AnimationDrawable) logoImg.getDrawable();
+                    connectAnimation.start();
+                    myImageMsgDialog.show();
+                    //此处进行开锁
+                    new Handler().postDelayed(new Runnable() {
+                        public void run() {
+                            // 等待2000毫秒后销毁此页面，并开门
+                            Lock.getInstance().sendA();
+                            Intent intent = new Intent(OrbbecProVideoIdentifyActivity.this, ReturnOperation.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }, 2000);
+                }
+                break;
+
         }
     }
 
@@ -707,7 +733,7 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                 Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
                 // android.os.Process.setThreadPriority (-4);
                 FaceApi.getInstance().loadFacesFromDB(groupId);
-                toast("人脸数据加载完成，即将开始1：N");
+//                toast("人脸数据加载完成，即将开始1：N");
                 int count = FaceApi.getInstance().getGroup2Facesets().get(groupId).size();
                 displayTip("底库人脸个数：" + count, facesetsCountTv);
                 identityStatus = IDENTITY_IDLE;
@@ -837,39 +863,24 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                         if (file != null && file.exists()) {
                             Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                             matchAvatorIv.setImageBitmap(bitmap);
-                            avi.hide();
                             //第一个人脸名称
                             String faceone = PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne");
                             if (faceone.equals("暂无人脸名称")) {
                                 PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceOne", user.getUserInfo());
-                                texta.setText(PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"));
-                                imagea.setImageBitmap(bitmap);
+                                str.set(0, PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"));
+                                spv.setItems(str, 3, 200);
+                                spv.startAnim(0, 1000);
+                                TTSUtils.getInstance().speak("识别成功，请识别第二张人脸");
                             } else {
                                 String facetwo = PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceTwo");
                                 //第二个人脸名称
                                 if (!user.getUserInfo().equals(PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"))) {
                                     if (facetwo.equals("暂无人脸名称")) {
                                         PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceTwo", user.getUserInfo());
-                                        textb.setText(PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceTwo"));
-                                        imageb.setImageBitmap(bitmap);
-                                        MyImageMsgDialog myImageMsgDialog = new MyImageMsgDialog(OrbbecProVideoIdentifyActivity.this).builder()
-                                                .setImageLogo(getResources().getDrawable(R.mipmap.ic_launcher))
-                                                .setMsg("双人认证成功，开锁中...");
-                                        ImageView logoImg = myImageMsgDialog.getLogoImg();
-                                        logoImg.setImageResource(R.drawable.connect_animation);
-                                        AnimationDrawable connectAnimation = (AnimationDrawable) logoImg.getDrawable();
-                                        connectAnimation.start();
-                                        myImageMsgDialog.show();
-                                        //此处进行开锁
-                                        new Handler().postDelayed(new Runnable() {
-                                            public void run() {
-                                                // 等待2000毫秒后销毁此页面，并开门
-                                                Lock.getInstance().sendA();
-                                                Intent intent=new Intent(OrbbecProVideoIdentifyActivity.this,ReturnOperation.class);
-                                                startActivity(intent);
-                                                finish();
-                                            }
-                                        }, 2000);
+                                        str.set(1, PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceTwo"));
+                                        spv.setItems(str, 3, 200);
+                                        spv.startAnim(2, 1000);
+                                        TTSUtils.getInstance().speak("识别成功，识别认证通过可进行下一步操作");
                                     }
                                 }
                             }

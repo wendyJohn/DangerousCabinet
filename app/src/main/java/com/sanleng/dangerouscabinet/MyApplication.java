@@ -1,6 +1,7 @@
 package com.sanleng.dangerouscabinet;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
 import com.sanleng.dangerouscabinet.utils.GetMac;
 
@@ -14,6 +15,8 @@ public class MyApplication extends Application {
     public static String MAC = "";
     public static boolean isFirst;
     public static MyApplication instance;
+    private static Context context = null;
+
     public synchronized MyApplication getInstance() {
         if (instance == null) {
             synchronized (MyApplication.class) {
@@ -29,6 +32,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        context = getApplicationContext();
         achieveMac();
         isFirst = true;
     }
@@ -44,6 +48,10 @@ public class MyApplication extends Application {
     public void achieveMac() {
         MAC = GetMac.getMacAddress().replaceAll(":", "");
         Log.i("MAC", MAC);
+    }
+
+    public static Context getContext() {
+        return context;
     }
 
     public void setIsFirst(Boolean isFirst) {

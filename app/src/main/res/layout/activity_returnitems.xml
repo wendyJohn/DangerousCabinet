@@ -1,74 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#3e4a88"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="30dp"
-        android:drawableLeft="@drawable/back_icon"
-        android:drawablePadding="3dp"
-        android:gravity="center"
-        android:text="返回首页"
-        android:textColor="#3be0ef"
-        android:textSize="20sp" />
-
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="200dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="300dp"
+            android:background="@color/white"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="请将危化品放置秤体称重"
+                android:textColor="@color/black"
+                android:textSize="30sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="100dp"
+            android:layout_marginTop="300dp"
+            android:layout_marginRight="100dp"
+            android:layout_marginBottom="250dp"
+            android:background="@drawable/text_rounded"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/weighingresults"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="本次称重结果"
+                android:textColor="@color/black"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/chemicalrfid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="化学品RFID"
+                android:textColor="@color/black"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/chemicalname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="化学品名称"
+                android:textColor="@color/black"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/lastweighing"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="上次秤重重量"
+                android:textColor="@color/black"
+                android:textSize="30sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="160dp"
+            android:background="@mipmap/people_icon" />
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:layout_marginBottom="100dp"
+        android:background="#95a3f0"
         android:gravity="center"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/weighingresults"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@color/sdl_button_pressed_light"
-            android:gravity="center"
-            android:text="本次称重结果"
-            android:textColor="@color/white"
-            android:textSize="26sp" />
-
-        <TextView
-            android:id="@+id/chemicalrfid"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@color/sdl_button_pressed_light"
-            android:gravity="center"
-            android:text="化学品RFID"
-            android:textColor="@color/white"
-            android:textSize="26sp" />
-
-        <TextView
-            android:id="@+id/chemicalname"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@color/sdl_button_pressed_light"
-            android:gravity="center"
-            android:text="化学品名称"
-            android:textColor="@color/white"
-            android:textSize="26sp" />
-
-        <TextView
-            android:id="@+id/lastweighing"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@color/sdl_button_pressed_light"
-            android:gravity="center"
-            android:text="上次秤重重量"
-            android:textColor="@color/white"
-            android:textSize="26sp" />
-
-    </LinearLayout>
-
-</LinearLayout>
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:text="返回首页"
+        android:textColor="@color/white"
+        android:textSize="30sp" />
+</RelativeLayout>

@@ -12,23 +12,24 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <TextureView
                 android:id="@+id/camera_surface_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent" />
 
             <TextureView
                 android:id="@+id/texture_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent" />
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:visibility="gone">
 
             <com.orbbec.view.OpenGLView
                 android:id="@+id/depthGlView"
@@ -38,70 +39,14 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="20dp">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/homepage_disk_normal" />
-
-            <ImageView
-                android:id="@+id/iv_rotate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/homepage_disk_normal" />
-
-            <TextView
-                android:id="@+id/countdown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="30dp"
-                android:text="倒计时"
-                android:textColor="@color/white"
-                android:textSize="26sp" />
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="3D人脸识别"
-                android:textColor="@color/white"
-                android:textSize="30sp" />
-
-            <TextView
-                android:id="@+id/message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:text="请正对平视屏幕"
-                android:textColor="@color/white"
-                android:textSize="16sp" />
-        </FrameLayout>
-
-    </RelativeLayout>
-
 
     <RelativeLayout
         android:id="@+id/match_rl"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true">
+        android:layout_centerHorizontal="true"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/match_avator_iv"
@@ -128,103 +73,109 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_centerInParent="true">
-
-        <com.wang.avi.AVLoadingIndicatorView
-            android:id="@+id/avi"
-            style="@style/AVLoadingIndicatorView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            app:indicatorName="BallClipRotateMultipleIndicator" />
-
-        <TextView
-            android:id="@+id/register"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/white"
-            android:textSize="20sp" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/linyoutb"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:orientation="vertical"
-            >
-
-            <ImageView
-                android:id="@+id/image_a"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/faceverification"
-                />
-
-            <TextView
-                android:id="@+id/text_a"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawablePadding="3dp"
-                android:gravity="center"
-                android:layout_marginRight="30dp"
-                android:text="请识别第一张人脸"
-                android:textSize="20sp" />
-
-            <ImageView
-                android:id="@+id/imageb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/faceverification"
-                />
-
-            <TextView
-                android:id="@+id/textb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawablePadding="3dp"
-                android:gravity="center"
-                android:layout_marginRight="30dp"
-                android:text="请识别第二张人脸"
-                android:textSize="20sp" />
-        </LinearLayout>
-
-
-    </RelativeLayout>
-
-
-    <RelativeLayout
-        android:id="@+id/linyoutb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/youtd"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp">
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:background="@mipmap/bface_icon">
 
         <TextView
             android:id="@+id/back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:drawableLeft="@mipmap/backs_icon" />
+
+        <TextView
+            android:id="@+id/countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="30dp"
-            android:drawableLeft="@drawable/back_icon"
-            android:drawablePadding="3dp"
-            android:gravity="center"
-            android:text="返回首页"
-            android:textColor="#3be0ef"
-            android:textSize="20sp" />
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:text="倒计时"
+            android:textColor="@color/white"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="20dp"
+            android:text="人脸识别双认证"
+            android:textColor="@color/white"
+            android:textSize="30sp" />
+
+        <com.lhz.stateprogress.StateProgressView
+            android:id="@+id/spv"
+            android:layout_width="match_parent"
+            app:color_circle_fill="#1296db"
+            android:layout_below="@+id/title"
+            app:color_circle_stroke="#dbdbdb"
+            app:color_text_state="#1296db"
+            app:is_line_radius="false"
+            app:color_text_normal="#bfbfbf"
+            app:color_line_state="#1296db"
+            app:color_line_normal="#dbdbdb"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"/>
+
+        <RelativeLayout
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_centerInParent="true">
+
+            <TextView
+                android:id="@+id/message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerInParent="true"
+                android:text="请正对平视屏幕"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/register"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/message"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+            <com.wang.avi.AVLoadingIndicatorView
+                android:id="@+id/avi"
+                style="@style/AVLoadingIndicatorView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                app:indicatorName="BallClipRotateMultipleIndicator" />
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/nextstep"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="下一步"
+            android:textSize="30dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="60dp"
+            android:background="#95a3f0"
+            android:textColor="@color/white"
+            android:layout_marginLeft="60dp"
+            android:layout_marginRight="60dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            />
+
 
     </RelativeLayout>
 
@@ -236,7 +187,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/facesets_count_tv"
