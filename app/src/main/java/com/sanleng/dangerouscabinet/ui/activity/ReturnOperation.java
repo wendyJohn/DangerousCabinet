@@ -51,7 +51,8 @@ public class ReturnOperation extends BaseActivity implements View.OnClickListene
                 break;
             //取出物资
             case R.id.removeitems:
-
+                Intent intentgetoutitems = new Intent(context, GetoutItems.class);
+                startActivity(intentgetoutitems);
                 break;
             //返回首页
             case R.id.back:

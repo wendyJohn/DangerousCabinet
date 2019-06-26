@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="50dp"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="50dp"
             android:background="@drawable/copyright" />
 
         <ImageView

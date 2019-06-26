@@ -59,6 +59,7 @@
 
         <activity android:name=".ui.activity.ReturnOperation" />
         <activity android:name=".ui.activity.ReturnItems" />
+        <activity android:name=".ui.activity.GetoutItems" />
         <activity android:name=".ui.activity.SearchActivity" />
 
         <!-- 替换原生极光推送接收器 -->

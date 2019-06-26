@@ -29,11 +29,12 @@
                 android:gravity="center"
                 android:layout_marginTop="45dp"
                 android:textColor="@color/black"
+                android:visibility="gone"
                 android:textSize="30sp" />
 
         </LinearLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
@@ -46,49 +47,59 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/weighingresults"
+                android:id="@+id/namea"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
                 android:gravity="center"
-                android:text="本次称重结果"
+                android:layout_centerInParent="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="150dp"
+                android:text="张三"
                 android:textColor="@color/black"
                 android:textSize="30sp" />
 
             <TextView
-                android:id="@+id/chemicalrfid"
+                android:id="@+id/nameb"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
                 android:gravity="center"
-                android:text="化学品RFID"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="150dp"
+                android:layout_centerInParent="true"
+                android:text="李四"
                 android:textColor="@color/black"
                 android:textSize="30sp" />
 
             <TextView
-                android:id="@+id/chemicalname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
                 android:gravity="center"
-                android:text="化学品名称"
+                android:layout_centerInParent="true"
+                android:text="关门立即盘点"
                 android:textColor="@color/black"
-                android:textSize="30sp" />
+                android:textSize="45sp" />
 
             <TextView
-                android:id="@+id/lastweighing"
+                android:id="@+id/time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
                 android:gravity="center"
-                android:text="上次秤重重量"
+                android:text="时间"
+                android:layout_centerInParent="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="50dp"
                 android:textColor="@color/black"
                 android:textSize="30sp" />
-        </LinearLayout>
+        </RelativeLayout>
 
         <ImageView
             android:layout_width="80dp"
@@ -98,21 +109,4 @@
             android:background="@mipmap/people_icon" />
     </FrameLayout>
 
-
-    <TextView
-        android:id="@+id/back"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="60dp"
-        android:layout_marginRight="60dp"
-        android:layout_marginBottom="100dp"
-        android:background="#95a3f0"
-        android:gravity="center"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:text="返回首页"
-        android:textColor="@color/white"
-        android:textSize="30sp" />
 </RelativeLayout>

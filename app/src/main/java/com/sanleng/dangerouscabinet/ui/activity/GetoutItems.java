@@ -1,6 +1,5 @@
 package com.sanleng.dangerouscabinet.ui.activity;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,11 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.sanleng.dangerouscabinet.MainActivity;
-import com.sanleng.dangerouscabinet.MyApplication;
 import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.data.DBHelpers;
-import com.sanleng.dangerouscabinet.fid.entity.Balance;
 import com.sanleng.dangerouscabinet.fid.entity.EPC;
 import com.sanleng.dangerouscabinet.fid.serialportapi.ReaderServiceImpl;
 import com.sanleng.dangerouscabinet.fid.service.CallBack;
@@ -21,7 +17,6 @@ import com.sanleng.dangerouscabinet.fid.service.CallBackStopReadCard;
 import com.sanleng.dangerouscabinet.fid.service.ReaderService;
 import com.sanleng.dangerouscabinet.fid.tool.ReaderUtil;
 import com.sanleng.dangerouscabinet.fid.util.DataFilter;
-import com.sanleng.dangerouscabinet.utils.Inventory;
 import com.sanleng.dangerouscabinet.utils.MessageEvent;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;
 
@@ -29,47 +24,47 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
- * 归还物资
+ * 取出物资
  */
-public class ReturnItems extends AppCompatActivity implements View.OnClickListener {
+public class GetoutItems extends AppCompatActivity {
     ReaderService readerService = new ReaderServiceImpl();
     private List<EPC> listEPC;
     private List<String> listEpc;
     private DBHelpers mOpenHelper;
-    private TextView weighingresults;
-    private TextView chemicalrfid;
-    private TextView chemicalname;
-    private TextView lastweighing;
-    private TextView back;
+    private TextView namea;
+    private TextView nameb;
+    private TextView time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_returnitems);
+        setContentView(R.layout.activity_getoutitems);
         initView();
-        TTSUtils.getInstance().speak("请放入所要称重归还的危化品");
+        TTSUtils.getInstance().speak("请按要求取出所需危化品");
         hideBottomUIMenu();
     }
 
     //初始化
     private void initView() {
         EventBus.getDefault().register(this);
-        weighingresults = findViewById(R.id.weighingresults);
-        chemicalrfid = findViewById(R.id.chemicalrfid);
-        chemicalname = findViewById(R.id.chemicalname);
-        lastweighing = findViewById(R.id.lastweighing);
-        back= findViewById(R.id.back);
-        back.setOnClickListener(this);
+        namea = findViewById(R.id.namea);
+        nameb = findViewById(R.id.nameb);
+        time = findViewById(R.id.time);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// HH:mm:ss
+        //获取当前时间
+        Date date = new Date(System.currentTimeMillis());
+        time.setText(simpleDateFormat.format(date));
+
     }
 
     @Override
     protected void onResume() {
-        //电子秤连接
-        Balance.getInstance().init();
         super.onResume();
     }
 
@@ -82,21 +77,15 @@ public class ReturnItems extends AppCompatActivity implements View.OnClickListen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void backData(MessageEvent messageEvent) {
         switch (messageEvent.getTAG()) {
-            case MyApplication.MESSAGE_BANLANCEDATA:
-                String data = messageEvent.getMessage();
-                String str = data.replaceAll(" ", "");
-                String balancedata = str.substring(str.indexOf("+") + 1);
-                System.out.println("=======秤的重量==========" + balancedata);
-                invOnces(balancedata.trim());
-                weighingresults.setText("本次称重结果：" + balancedata.trim());
-                break;
+//            case MyApplication.MESSAGE_BANLANCEDATA:
+//                break;
         }
     }
 
 
-    //获取电子秤上的物资信息
+    //获取被取出的物资信息
     public void invOnces(final String balancedata) {
-        mOpenHelper = new DBHelpers(ReturnItems.this);
+        mOpenHelper = new DBHelpers(GetoutItems.this);
         listEPC = new ArrayList<>();
         listEpc = new ArrayList<>();
         if (null == ReaderUtil.readers) {
@@ -122,7 +111,6 @@ public class ReturnItems extends AppCompatActivity implements View.OnClickListen
                     }
                 }
                 String epc = listEpc.get(0);
-                System.out.println("=======EPC======="+epc);
                 Cursor cursor = mOpenHelper.query("select * from materialtable where Epc=" + "'" + epc + "'", null);
                 while (cursor.moveToNext()) {
                     String epcs = cursor.getString(cursor.getColumnIndex("Epc"));
@@ -135,29 +123,11 @@ public class ReturnItems extends AppCompatActivity implements View.OnClickListen
                     String Name = cursor.getString(cursor.getColumnIndex("Name"));
                     String Balancedata = cursor.getString(cursor.getColumnIndex("Balancedata"));
 
-                    chemicalrfid.setText("化学品RFID：" + epcs);
-                    chemicalname.setText("化学品名称：" + Name);
-                    lastweighing.setText("上次称重结果：" + Balancedata);
-                    mOpenHelper.update(epcs, "emergencystation_in", balancedata);
-                    TTSUtils.getInstance().speak("本次称重物品是"+Name+"重量为"+balancedata);
                     //提交服务器
-
                 }
                 cursor.close();
             }
         }, 2000);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.back:
-                Intent intent = new Intent(ReturnItems.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
-                finish();
-                break;
-        }
     }
 
     class ReadData implements CallBack {
@@ -223,6 +193,7 @@ public class ReturnItems extends AppCompatActivity implements View.OnClickListen
             decorView.setSystemUiVisibility(uiOptions);
         }
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

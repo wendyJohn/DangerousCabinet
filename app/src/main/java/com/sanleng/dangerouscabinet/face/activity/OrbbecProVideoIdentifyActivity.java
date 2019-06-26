@@ -21,6 +21,7 @@ import android.graphics.SurfaceTexture;
 import android.graphics.drawable.AnimationDrawable;
 import android.hardware.Camera;
 import android.hardware.usb.UsbDevice;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -50,13 +51,14 @@ import com.baidu.aip.utils.FileUitls;
 import com.baidu.aip.utils.GlobalSet;
 import com.baidu.aip.utils.PreferencesUtil;
 import com.baidu.idl.facesdk.model.FaceInfo;
+//import com.githang.stepview.StepView;
 import com.hb.dialog.myDialog.MyImageMsgDialog;
-import com.lhz.stateprogress.StateProgressView;
 import com.orbbec.view.OpenGLView;
 import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.face.utils.GlobalFaceTypeModel;
 import com.sanleng.dangerouscabinet.fid.entity.Lock;
 import com.sanleng.dangerouscabinet.ui.activity.ReturnOperation;
+import com.sanleng.dangerouscabinet.ui.view.StepView;
 import com.sanleng.dangerouscabinet.utils.PreferenceUtils;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -168,9 +170,8 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
     private TextView countdown;
     private TextView back;
     private TextView register;
-    private List<String> str;
-    private StateProgressView spv;
     private Button nextstep;
+    private StepView mSV1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -183,7 +184,7 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
         mContext = this;
         PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceOne", "暂无人脸名称");
         PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceTwo", "暂无人脸名称");
-//      registerHomeListener();
+        //registerHomeListener();
         Intent intent = getIntent();
         if (intent != null) {
             groupId = intent.getStringExtra("group_id");
@@ -191,16 +192,14 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
         TTSUtils.getInstance().speak("请正视摄像头位置");
         DBManager.getInstance().init(this);
         loadFeature2Memery();
+        hideBottomUIMenu();
     }
 
     private void findView() {
-        str = new ArrayList<>();
-        spv = findViewById(R.id.spv);
-        str.add("请识别第一张人脸");
-        str.add("请识别第二张人脸");
-        str.add("识别完成");
-        spv.setItems(str, 3, 200);
-        spv.startAnim(-1, 1000);
+
+        mSV1 = (StepView) findViewById(R.id.view1);
+        mSV1.setBottomText(new String[]{"请识别第一张人脸","请识别第二张人脸","识别成功"});
+        mSV1.setCurrentStep(1);  //设置当前进度
 
         nextstep = findViewById(R.id.nextstep);
         textureView = findViewById(R.id.texture_view);
@@ -233,6 +232,7 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
         nextstep.setOnClickListener(this);
 
     }
+
 
 
     private void init(UsbDevice device) {
@@ -867,20 +867,19 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                             String faceone = PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne");
                             if (faceone.equals("暂无人脸名称")) {
                                 PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceOne", user.getUserInfo());
-                                str.set(0, PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"));
-                                spv.setItems(str, 3, 200);
-                                spv.startAnim(0, 1000);
                                 TTSUtils.getInstance().speak("识别成功，请识别第二张人脸");
+                                mSV1.setBottomText(new String[]{PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"),"请识别第二张人脸","识别成功"});
+                                mSV1.setCurrentStep(2);  //设置当前进度
                             } else {
                                 String facetwo = PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceTwo");
                                 //第二个人脸名称
                                 if (!user.getUserInfo().equals(PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"))) {
                                     if (facetwo.equals("暂无人脸名称")) {
                                         PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceTwo", user.getUserInfo());
-                                        str.set(1, PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceTwo"));
-                                        spv.setItems(str, 3, 200);
-                                        spv.startAnim(2, 1000);
                                         TTSUtils.getInstance().speak("识别成功，识别认证通过可进行下一步操作");
+                                        mSV1.setBottomText(new String[]{PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"),PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceTwo"),"识别成功"});
+                                        mSV1.setCurrentStep(3);  //设置当前进度
+
                                     }
                                 }
                             }
@@ -1077,6 +1076,23 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
             countdowntimer.start();
         } else {
             countdowntimer.start();
+        }
+    }
+
+    /**
+     * 隐藏虚拟按键，并且全屏
+     */
+    protected void hideBottomUIMenu() {
+        //隐藏虚拟按键，并且全屏
+        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api
+            View v = this.getWindow().getDecorView();
+            v.setSystemUiVisibility(View.GONE);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            //for new api versions.
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
         }
     }
 }
