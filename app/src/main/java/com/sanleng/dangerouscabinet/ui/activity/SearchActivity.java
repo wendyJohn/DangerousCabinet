@@ -10,17 +10,21 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import com.sanleng.dangerouscabinet.MainActivity;
 import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.data.DBHelpers;
 import com.sanleng.dangerouscabinet.ui.adapter.DangerousChemicalsAdapter;
+import com.sanleng.dangerouscabinet.ui.adapter.SimpleArrayAdapter;
 import com.sanleng.dangerouscabinet.ui.bean.DangerousChemicals;
 import com.sanleng.dangerouscabinet.utils.CharacterParser;
+import com.sanleng.dangerouscabinet.utils.DetailsDialog;
 import com.sanleng.dangerouscabinet.utils.PinyinComparator;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;
 
@@ -41,14 +45,24 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
     private CharacterParser characterParser;
     // 根据拼音来排列ListView里面的数据类
     private PinyinComparator pinyinComparator;
+    private Spinner spinnera;
+    private Spinner spinnerb;
+    private Spinner spinnerc;
+    private SimpleArrayAdapter adapter;
+    private List<String> lista;
+    private List<String> listb;
+    private List<String> listc;
+    private String spinnerstra="";
+    private String spinnerstrb="";
+    private String spinnerstrc="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_search);
         initView();
-        addData();
+        addData(spinnerstra, spinnerstrb, spinnerstrc);
     }
 
     //初始化
@@ -76,6 +90,69 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         });
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
+
+        spinnera = (Spinner) this.findViewById(R.id.spinnera);
+        adapter = new SimpleArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_dropdown_item, getDataSourcea());
+        spinnera.setAdapter(adapter);
+        //默认选中最后一项
+        spinnera.setSelection(lista.size() - 1, true);
+        spinnera.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String str = lista.get(position);
+                if(str.equals("柜内")){
+                    spinnerstra="in";
+                }else{
+                    spinnerstra="out";
+                }
+                addData(spinnerstra, spinnerstrb, spinnerstrc);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spinnerb = (Spinner) this.findViewById(R.id.spinnerb);
+        adapter = new SimpleArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_dropdown_item, getDataSourceb());
+        spinnerb.setAdapter(adapter);
+        //默认选中最后一项
+        spinnerb.setSelection(listb.size() - 1, true);
+        spinnerb.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                spinnerstrb = listb.get(position);
+                addData(spinnerstra, spinnerstrb, spinnerstrc);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spinnerc = (Spinner) this.findViewById(R.id.spinnerc);
+        adapter = new SimpleArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_dropdown_item, getDataSourcec());
+        spinnerc.setAdapter(adapter);
+        //默认选中最后一项
+        spinnerc.setSelection(listc.size() - 1, true);
+        spinnerc.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                spinnerstrc = listc.get(position);
+                addData(spinnerstra, spinnerstrb, spinnerstrc);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
     }
 
     @Override
@@ -83,38 +160,113 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         return R.layout.activity_search;
     }
 
-
-    private void addData() {
+    //获取全部危化品信息
+    private void addData(String states, String acidbases, String types) {
         mOpenHelper = new DBHelpers(this);
         mylist = new ArrayList<>();
-        Cursor cursor = mOpenHelper.query("select * from materialtable", null);
+        String str = "";
+        if (states.equals("") && acidbases.equals("") && types.equals("")) {
+            str = "select * from materialtable";
+        }
+        if (!states.equals("") && acidbases.equals("") && types.equals("")) {
+            str = "select * from materialtable where Staus=" + "'" + states + "'";
+        }
+
+        if (states.equals("") && !acidbases.equals("") && types.equals("")) {
+            str = "select * from materialtable where Acidbase=" + "'" + acidbases + "'";
+        }
+
+        if (states.equals("") && acidbases.equals("") && !types.equals("")) {
+            str = "select * from materialtable where Type=" + "'" + types + "'";
+        }
+
+        if (!states.equals("") && !acidbases.equals("") && types.equals("")) {
+            str = "select * from materialtable where Staus=" + "'" + states + "'" + "and Acidbase=" + "'" + acidbases + "'";
+        }
+
+        if (!states.equals("") && acidbases.equals("") && !types.equals("")) {
+            str = "select * from materialtable where Staus=" + "'" + states + "'" + "and Type=" + "'" + types + "'";
+        }
+
+        if (states.equals("") && !acidbases.equals("") && !types.equals("")) {
+            str = "select * from materialtable where Acidbase=" + "'" + acidbases + "'" + "and Type=" + "'" + types + "'";
+        }
+
+        if (!states.equals("") && !acidbases.equals("") && !types.equals("")) {
+            str = "select * from materialtable where Staus=" + "'" + states + "'" + "and Acidbase=" + "'" + acidbases + "'" + "and Type=" + "'" + types + "'";
+        }
+
+        Cursor cursor = mOpenHelper.query(str, null);
         while (cursor.moveToNext()) {
             String epc = cursor.getString(cursor.getColumnIndex("Epc"));
             String name = cursor.getString(cursor.getColumnIndex("Name"));
             String ids = cursor.getString(cursor.getColumnIndex("Ids"));
             String balancedata = cursor.getString(cursor.getColumnIndex("Balancedata"));
+            String equation = cursor.getString(cursor.getColumnIndex("Equation"));
+            String type = cursor.getString(cursor.getColumnIndex("Type"));
+            String acidbase = cursor.getString(cursor.getColumnIndex("Acidbase"));
+            String specifications = cursor.getString(cursor.getColumnIndex("CurrentWeight"));
+            String state = cursor.getString(cursor.getColumnIndex("Staus"));
+            String describe = cursor.getString(cursor.getColumnIndex("Describe"));
+
             DangerousChemicals bean = new DangerousChemicals();
             bean.setRfid(epc);
             bean.setName(name);
             bean.setIds(ids);
             bean.setBalancedata(balancedata);
+            bean.setEquation(equation);
+            bean.setType(acidbase + "    " + type);
+            bean.setSpecifications(specifications);
+            bean.setState(state);
+            bean.setDescribe(describe);
             mylist.add(bean);
         }
         cursor.close();
 
         gridView = findViewById(R.id.gridView);
-        gridView.setNumColumns(2);
+        gridView.setNumColumns(3);
         dangerousChemicalsAdapter = new DangerousChemicalsAdapter(SearchActivity.this, mylist);
         gridView.setAdapter(dangerousChemicalsAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String epc = ((DangerousChemicals) dangerousChemicalsAdapter.getItem(position)).getRfid();
                 String name = ((DangerousChemicals) dangerousChemicalsAdapter.getItem(position)).getName();
-                System.out.println(name);
-                TTSUtils.getInstance().speak("高锰酸钾（Potassium permanganate）为黑紫色、细长的棱形结晶或颗粒，带蓝色的金属光泽；无臭；与某些有机物或易氧化物接触，易发生爆炸，溶于水、碱液，微溶于甲醇、丙酮、硫酸，分子式为KMnO4，分子量为158.03400。熔点为240°C，稳定，但接触易燃材料可能引起火灾。要避免的物质包括还原剂、强酸、有机材料、易燃材料、过氧化物、醇类和化学活性金属。");
+                String equation = ((DangerousChemicals) dangerousChemicalsAdapter.getItem(position)).getEquation();
+                String balancedata = ((DangerousChemicals) dangerousChemicalsAdapter.getItem(position)).getBalancedata();
+                String describe = ((DangerousChemicals) dangerousChemicalsAdapter.getItem(position)).getDescribe();
+                DetailsDialog detailsDialog=new DetailsDialog(SearchActivity.this,epc,name,equation,balancedata,describe);
+                detailsDialog.show();
+                TTSUtils.getInstance().speak(describe);
             }
         });
     }
+
+    public List<String> getDataSourcea() {
+        lista = new ArrayList<String>();
+        lista.add("柜内");
+        lista.add("柜外");
+        lista.add("全部");
+        return lista;
+    }
+
+    public List<String> getDataSourceb() {
+        listb = new ArrayList<String>();
+        listb.add("强酸");
+        listb.add("强碱");
+        listb.add("化学品属性");
+        return listb;
+    }
+
+    public List<String> getDataSourcec() {
+        listc = new ArrayList<String>();
+        listc.add("固体");
+        listc.add("液体");
+        listc.add("气体");
+        listc.add("化学品状态");
+        return listc;
+    }
+
 
     /**
      * 根据输入框中的值来过滤数据并更新ListView

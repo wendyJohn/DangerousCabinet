@@ -32,8 +32,8 @@ import com.baidu.aip.utils.PreferencesUtil;
 import com.iflytek.cloud.Setting;
 import com.iflytek.cloud.SpeechUtility;
 import com.sanleng.dangerouscabinet.broadcast.Receiver;
+import com.sanleng.dangerouscabinet.data.SDBHelper;
 import com.sanleng.dangerouscabinet.face.activity.LivenessSettingActivity;
-import com.sanleng.dangerouscabinet.face.activity.MainsActivity;
 import com.sanleng.dangerouscabinet.face.activity.OrbbecProVideoIdentifyActivity;
 import com.sanleng.dangerouscabinet.face.activity.RgbVideoIdentityActivity;
 import com.sanleng.dangerouscabinet.fid.serialportapi.ReaderServiceImpl;
@@ -44,6 +44,9 @@ import com.sanleng.dangerouscabinet.ui.activity.SearchActivity;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;
 import com.sanleng.dangerouscabinet.utils.Utils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -101,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         hideBottomUIMenu();
+        if (Utils.foFile() == false) {
+            new Thread(runnables).start();
+        }
     }
 
     @Override
@@ -377,13 +383,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.search:
                 startActivity(new Intent(this, SearchActivity.class));
 //                TTSUtils.getInstance().speak("请注意，当前温度过高");
-                TTSUtils.getInstance().speak("请注意，当前门未关起，请注意，当前门未关起");
+//                TTSUtils.getInstance().speak("请注意，当前门未关起，请注意，当前门未关起");
                 break;
             //人脸认证
             case R.id.faceverification:
 //                Intent intent = new Intent(MainActivity.this, MainsActivity.class);
 //                startActivity(intent);
-                // 使用人脸1：n时使用
+//                 使用人脸1：n时使用
                 DBManager.getInstance().init(this);
                 livnessTypeTip();
                 if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager
@@ -525,4 +531,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             decorView.setSystemUiVisibility(uiOptions);
         }
     }
+
+    Runnable runnables = new Runnable() {
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            String databaseFilename = SDBHelper.DB_DIRS + File.separator + "dangerconfig.db";
+            InputStream is = getResources().openRawResource(R.raw.dangerconfig);
+            FileOutputStream fos;
+            try {
+                fos = new FileOutputStream(databaseFilename);
+                byte[] buffer = new byte[8192];
+                int count = 0;
+                while ((count = is.read(buffer)) > 0) {
+                    fos.write(buffer, 0, count);
+                }
+                fos.close();
+                is.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
 }

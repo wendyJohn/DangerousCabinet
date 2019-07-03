@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sanleng.dangerouscabinet.R;
@@ -73,21 +74,38 @@ public class DangerousChemicalsAdapter extends BaseAdapter {
         }
         hold.rfid = convertView.findViewById(R.id.rfid);
         hold.name = convertView.findViewById(R.id.name);
-        hold.id = convertView.findViewById(R.id.id);
+        hold.equation = convertView.findViewById(R.id.equation);
         hold.weight = convertView.findViewById(R.id.weight);
+        hold.type = convertView.findViewById(R.id.type);
+        hold.specifications = convertView.findViewById(R.id.specifications);
+        hold.blinears = convertView.findViewById(R.id.blinears);
 
         hold.rfid.setText(list.get(position).getRfid());
-        hold.name.setText("化学品名称  > " + list.get(position).getName());
-        hold.id.setText("化学品ID  > " + list.get(position).getIds());
-        hold.weight.setText("当前重量  > " + list.get(position).getBalancedata());
+        hold.name.setText(list.get(position).getName());
+        hold.equation.setText(list.get(position).getEquation());
+        hold.weight.setText("当前重量    " + list.get(position).getBalancedata());
+        hold.specifications.setText("规格重量    " + list.get(position).getSpecifications());
+        hold.type.setText(list.get(position).getType());
+        String state=list.get(position).getState();
+        if(state.equals("in")){
+            hold.blinears.setBackground(context.getResources().getDrawable(R.mipmap.bottle_in));
+        }
+        if(state.equals("out")){
+            hold.blinears.setBackground(context.getResources().getDrawable(R.mipmap.bottle_out));
+        }
         return convertView;
     }
 
     static class ViewHold {
         public TextView rfid;
         public TextView name;
-        public TextView id;
+        public TextView equation;
         public TextView weight;
+        public TextView type;
+        public TextView specifications;
+        public LinearLayout blinears;
+
+
     }
 
     /**

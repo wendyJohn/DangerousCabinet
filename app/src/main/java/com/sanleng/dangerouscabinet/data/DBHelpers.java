@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 
 import com.sanleng.dangerouscabinet.MyApplication;
+import com.sanleng.dangerouscabinet.ui.bean.Dangerous;
 
 import java.io.File;
 
@@ -60,43 +61,66 @@ public class DBHelpers extends SQLiteOpenHelper {
 		return cursor;
 	}
 
-	//插入更新数据库数据
-//	public void insert(ArchitectureBean architectureBean) {
-//		SQLiteDatabase db = getWritableDatabase();
-//		ContentValues values = new ContentValues();
-//		values.put("Epc", architectureBean.getEpc());
-//		values.put("Ant", architectureBean.getAnt());
-//		values.put("Staus", architectureBean.getState());
-//		values.put("Ids", architectureBean.getIds());
-//		values.put("StationName", architectureBean.getStationName());
-//		values.put("StorageLocation", architectureBean.getStorageLocation());
-//		values.put("StationId", architectureBean.getStationId());
-//		values.put("Name", architectureBean.getName());
-//		db.insert("materialtable", null, values);
-//	}
+	//初始化本地数据库数据
+	public void insert(Dangerous dangerous) {
+		SQLiteDatabase db = getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("Epc", dangerous.getEpc());
+		values.put("Ant", dangerous.getAnt());
+		values.put("Staus", dangerous.getStaus());
+		values.put("Ids", dangerous.getIds());
+		values.put("StationName", dangerous.getStationName());
+		values.put("StorageLocation", dangerous.getStorageLocation());
+		values.put("StationId", dangerous.getStationId());
+		values.put("Name", dangerous.getName());
+		values.put("Balancedata", dangerous.getBalancedata());
+		values.put("Equation", dangerous.getEquation());
+		values.put("Acidbase", dangerous.getAcidbase());
+		values.put("Type", dangerous.getType());
+		values.put("CurrentWeight", dangerous.getCurrentWeight());
+		values.put("Manufacturer", dangerous.getManufacturer());
+		db.insert("materialtable", null, values);
+	}
 
-	//更新物资状态
-	public int update(String epc, String staus,String balancedata) {
+	//更新危化品状态
+	public int update(String epc, String staus) {
 		SQLiteDatabase db = getWritableDatabase();
 		ContentValues updatedValues = new ContentValues();
 		updatedValues.put("Staus", staus);
+		String where = "Epc=" +"'" + epc + "'";
+		return db.update("materialtable", updatedValues, where, null);
+	}
+
+	//更新危化品重量
+	public int updatebalancedata(String epc,String balancedata) {
+		SQLiteDatabase db = getWritableDatabase();
+		ContentValues updatedValues = new ContentValues();
 		updatedValues.put("Balancedata", balancedata);
 		String where = "Epc=" +"'" + epc + "'";
 		return db.update("materialtable", updatedValues, where, null);
 	}
+
+	//危化品过秤记录
+	public void insertweigh(String epc,String name,String weigh) {
+		SQLiteDatabase db = getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("Epc", epc);
+		values.put("Name", name);
+		values.put("Currentweight", weigh);
+		db.insert("operationalrecords", null, values);
+	}
+
 	//清空表数据
 	public void delete() {
 		SQLiteDatabase db = getWritableDatabase();
 		db.delete("materialtable", null, null);
 	}
 
-
-	//更新配置天线
-	public int updateant(String ant, String location) {
+	//清空操作记录表数据
+	public void deleterecords() {
 		SQLiteDatabase db = getWritableDatabase();
-		ContentValues updatedValues = new ContentValues();
-		updatedValues.put("Ant", ant);
-		String where = "Position=" +"'" + location + "'";
-		return db.update("anttable", updatedValues, where, null);
+		db.delete("operationalrecords", null, null);
 	}
+
+
 }

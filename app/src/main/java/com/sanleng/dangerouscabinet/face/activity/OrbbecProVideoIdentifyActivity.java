@@ -55,8 +55,10 @@ import com.baidu.idl.facesdk.model.FaceInfo;
 import com.hb.dialog.myDialog.MyImageMsgDialog;
 import com.orbbec.view.OpenGLView;
 import com.sanleng.dangerouscabinet.R;
+import com.sanleng.dangerouscabinet.data.DBHelpers;
 import com.sanleng.dangerouscabinet.face.utils.GlobalFaceTypeModel;
 import com.sanleng.dangerouscabinet.fid.entity.Lock;
+import com.sanleng.dangerouscabinet.ui.activity.PasswordAuthentication;
 import com.sanleng.dangerouscabinet.ui.activity.ReturnOperation;
 import com.sanleng.dangerouscabinet.ui.view.StepView;
 import com.sanleng.dangerouscabinet.utils.PreferenceUtils;
@@ -172,6 +174,7 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
     private TextView register;
     private Button nextstep;
     private StepView mSV1;
+    private DBHelpers mOpenHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -196,10 +199,10 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
     }
 
     private void findView() {
-
         mSV1 = (StepView) findViewById(R.id.view1);
         mSV1.setBottomText(new String[]{"请识别第一张人脸","请识别第二张人脸","识别成功"});
         mSV1.setCurrentStep(1);  //设置当前进度
+        mOpenHelper = new DBHelpers(OrbbecProVideoIdentifyActivity.this);
 
         nextstep = findViewById(R.id.nextstep);
         textureView = findViewById(R.id.texture_view);
@@ -474,6 +477,7 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                         public void run() {
                             // 等待2000毫秒后销毁此页面，并开门
                             Lock.getInstance().sendA();
+                            mOpenHelper.deleterecords();
                             Intent intent = new Intent(OrbbecProVideoIdentifyActivity.this, ReturnOperation.class);
                             startActivity(intent);
                             finish();

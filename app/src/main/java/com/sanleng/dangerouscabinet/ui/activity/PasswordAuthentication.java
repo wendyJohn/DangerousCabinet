@@ -14,6 +14,8 @@ import android.widget.Toast;
 import com.hb.dialog.myDialog.MyImageMsgDialog;
 import com.sanleng.dangerouscabinet.MainActivity;
 import com.sanleng.dangerouscabinet.R;
+import com.sanleng.dangerouscabinet.data.DBHelpers;
+import com.sanleng.dangerouscabinet.fid.entity.Lock;
 import com.sanleng.dangerouscabinet.ui.view.CodeEditView;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;
 
@@ -30,7 +32,7 @@ public class PasswordAuthentication extends AppCompatActivity implements View.On
     public CountDownTimer countdowntimer;
     private long advertisingTime = 90 * 1000;//90S退出识别认证
     private TextView countdown;
-
+    private DBHelpers mOpenHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +44,7 @@ public class PasswordAuthentication extends AppCompatActivity implements View.On
     //初始化
     private void initView() {
         TTSUtils.getInstance().speak("请输入密码");
+        mOpenHelper = new DBHelpers(PasswordAuthentication.this);
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
         countdown = findViewById(R.id.countdown);
@@ -107,8 +110,9 @@ public class PasswordAuthentication extends AppCompatActivity implements View.On
             new Handler().postDelayed(new Runnable() {
                 public void run() {
                     // 等待2000毫秒后销毁此页面，并开门
-//                    Lock.getInstance().sendA();
-                    Intent intent = new Intent(PasswordAuthentication.this, ReturnOperation.class);
+                    Lock.getInstance().sendA();
+                    mOpenHelper.deleterecords();
+                    Intent intent = new Intent(PasswordAuthentication.this, OperationActivity.class);
                     startActivity(intent);
                     finish();
                 }

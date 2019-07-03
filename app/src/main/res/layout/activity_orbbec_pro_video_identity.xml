@@ -124,7 +124,6 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
         <RelativeLayout
             android:layout_width="300dp"
             android:layout_height="300dp"

@@ -28,6 +28,7 @@ public class Inventory extends AppCompatActivity {
     private List<EPC> listEPC;
     private List<String> listEpc;
     private DBHelpers mOpenHelper;
+
     //正常盘点数据
     public void invOnce() {
         mOpenHelper = new DBHelpers(this);
@@ -52,9 +53,11 @@ public class Inventory extends AppCompatActivity {
                 for (int i = 0; i < listEPC.size(); i++) {
                     String epc = listEPC.get(i).getEpc();
                     String myant = listEPC.get(i).getAnt();
-                    listEpc.add(epc);
+                    if (myant.equals("1") || myant.equals("2") || myant.equals("3")) {
+                        listEpc.add(epc);
+                    }
                 }
-
+                //操作记录的数组
                 JSONArray array = new JSONArray();
                 Cursor cursor = mOpenHelper.query("select * from materialtable", null);
                 while (cursor.moveToNext()) {
@@ -70,42 +73,60 @@ public class Inventory extends AppCompatActivity {
                     if (exists) {
                         System.out.println(epcs + "有卡号信息！");
                         //当有卡时判断状态，如果是出库状态则认为现在为入库。
-//                        if (staus.equals("emergencystation_out")) {
-//                            System.out.println(epcs + "物资入库");
-//                            mOpenHelper.update(epcs, "emergencystation_in");
-//                            try {
-//                                object.put("ids", ids);
-//                                object.put("state", "emergencystation_in");
-//                                object.put("agentName", PreferenceUtils.getString(this, "FaceUserName"));
-//                                object.put("stationId", StationId);
-//                                object.put("storageLocation", StorageLocation);
-//                                array.put(object);
-//                            } catch (JSONException e) {
-//                                e.printStackTrace();
+                        if (staus.equals("out")) {
+                            System.out.println(epcs + "物资入库");
+                            mOpenHelper.update(epcs, "in");
+                            //危化品入库时判断是否已过秤，未过秤给予提示
+                            Cursor cursors = mOpenHelper.query("select * from operationalrecords where Epc=" + "'" + epcs + "'", null);
+                            while (cursors.moveToNext()) {
+                                String Name = cursor.getString(cursor.getColumnIndex("Name"));
+
+
+                            }
+                            cursors.close();
+//                            if(IsOverstated.equals("unweighed")){
+//                                TTSUtils.getInstance().speak("请注意，当前您有危化品未过秤。");
 //                            }
-//                        }
+
+                            //统计本次物品入库的操作记录
+                            try {
+                                object.put("ids", ids);
+                                object.put("state", "in");
+                                object.put("agentName", PreferenceUtils.getString(Inventory.this, "FaceOne"));
+                                object.put("stationId", StationId);
+                                object.put("storageLocation", StorageLocation);
+                                array.put(object);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
+
                     //当无卡时则认为现在为出库，并修改物资为出库状态。
-//                    else {
-//                        if (staus.equals("emergencystation_in")) {
-//                            System.out.println(epcs + "物资出库");
-//                            mOpenHelper.update(epcs, "emergencystation_out");
-//                            try {
-//                                object.put("ids", ids);
-//                                object.put("state", "emergencystation_out");
-////                                object.put("agentName", PreferenceUtils.getString(this, "Faceone"));
-//                                object.put("stationId", StationId);
-//                                object.put("storageLocation", StorageLocation);
-//                                array.put(object);
-//                            } catch (JSONException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//
-//                    }
+                    else {
+                        System.out.println(epcs + "无卡号信息！");
+                        if (staus.equals("in")) {
+                            System.out.println(epcs + "物资出库");
+                            //更新物资状态，并修改为未过秤状态
+                            mOpenHelper.update(epcs, "out");
+
+                            //统计本次出库的物资操作记录。
+                            try {
+                                object.put("ids", ids);
+                                object.put("state", "out");
+                                object.put("agentName", PreferenceUtils.getString(Inventory.this, "Faceone"));
+                                object.put("stationId", StationId);
+                                object.put("storageLocation", StorageLocation);
+                                array.put(object);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
                 }
                 cursor.close();
-                //提交盘点数据
+                //提交盘点数据,并展示。
                 System.out.println("========Array大小============" + array.length());
                 if (array.length() > 0) {
 //                    Submission(array);

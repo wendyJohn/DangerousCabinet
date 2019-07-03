@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/texta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="柜内详情"
+            android:textSize="30sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            />
+
+        <View
+            android:id="@+id/viewa"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_below="@id/texta"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/dialog_gray" />
+
+
+        <TextView
+            android:id="@+id/rfid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="试剂RFID"
+            android:layout_below="@id/viewa"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="危化品名称"
+            android:layout_below="@id/rfid"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            />
+
+
+        <TextView
+            android:id="@+id/equation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="化学品方程式"
+            android:layout_below="@id/name"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            />
+
+        <TextView
+            android:id="@+id/balancedata"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="剩余容量"
+            android:layout_below="@id/equation"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            />
+
+        <TextView
+            android:id="@+id/describe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="化学品详情"
+            android:layout_below="@id/balancedata"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="50dp"
+            />
+    </RelativeLayout>
+
+</RelativeLayout>

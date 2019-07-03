@@ -3,6 +3,9 @@ package com.sanleng.dangerouscabinet.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.sanleng.dangerouscabinet.MainActivity;
@@ -16,6 +19,7 @@ public class ReturnOperation extends BaseActivity implements View.OnClickListene
     private TextView returnitems;
     private TextView removeitems;
     private TextView back;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

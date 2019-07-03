@@ -9,18 +9,14 @@ public class DangerousChemicals {
     private String ids;
     private String balancedata;
     private String sortLetters; // 显示数据拼音的首字母
+    private String equation;
+    private String type;
+    private String specifications;
+    private String state;
+    private String describe;
 
     public DangerousChemicals() {
         super();
-    }
-
-    public DangerousChemicals(String name, String sortLetters, String ids, String balancedata,String rfid) {
-        super();
-        this.name = name;
-        this.sortLetters = sortLetters;
-        this.ids = ids;
-        this.balancedata = balancedata;
-        this.rfid = rfid;
     }
 
     public String getSortLetters() {
@@ -61,5 +57,45 @@ public class DangerousChemicals {
 
     public void setRfid(String rfid) {
         this.rfid = rfid;
+    }
+
+    public String getEquation() {
+        return equation;
+    }
+
+    public void setEquation(String equation) {
+        this.equation = equation;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getSpecifications() {
+        return specifications;
+    }
+
+    public void setSpecifications(String specifications) {
+        this.specifications = specifications;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getDescribe() {
+        return describe;
+    }
+
+    public void setDescribe(String describe) {
+        this.describe = describe;
     }
 }
