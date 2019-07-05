@@ -19,6 +19,8 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/black"
             android:text="排序" />
 
         <TextView
@@ -28,6 +30,8 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/black"
             android:text="名称" />
 
         <TextView
@@ -37,6 +41,8 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/black"
             android:text="重量" />
 
     </LinearLayout>

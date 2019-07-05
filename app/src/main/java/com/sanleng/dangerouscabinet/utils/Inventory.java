@@ -122,7 +122,6 @@ public class Inventory extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         }
-
                     }
                 }
                 cursor.close();

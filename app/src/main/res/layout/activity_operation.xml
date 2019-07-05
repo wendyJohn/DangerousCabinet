@@ -47,7 +47,7 @@
             android:id="@+id/voc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="30dp"
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/viewa"
             android:text="VOC \n 56"
@@ -111,12 +111,156 @@
             android:layout_alignParentRight="true"
             android:layout_centerInParent="true"
             android:src="@mipmap/fanin_icon" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/inventory"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/linearb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@mipmap/inventory_taba"
+             android:visibility="gone"
+            android:padding="5dp">
+
+            <TextView
+                android:id="@+id/inventory_in"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="柜内库存"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/inventory_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="柜外库存"
+                android:textColor="@color/black" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/linears"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@mipmap/taba"
+            android:visibility="visible"
+            android:padding="5dp">
+
+            <TextView
+                android:id="@+id/allrecords"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="全部记录"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/storagerecords"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="存放记录"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/removerecords"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="取出记录"
+                android:textColor="@color/black" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/storagelistview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/lineara"
+            android:layout_below="@id/linears"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:scrollbars="none" />
+
+        <ListView
+            android:id="@+id/inventorylistview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/lineara"
+            android:layout_below="@id/linearb"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:scrollbars="none" />
+
+        <LinearLayout
+            android:id="@+id/lineara"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/accessrecords"
+                android:layout_width="0dp"
+                android:layout_height="55dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="30dp"
+                android:layout_weight="1"
+                android:background="#54a4ef"
+                android:gravity="center"
+                android:text="存取记录"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_16" />
+
+            <Button
+                android:id="@+id/inventoryrecords"
+                android:layout_width="0dp"
+                android:layout_height="55dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="30dp"
+                android:layout_weight="1"
+                android:background="#95a3f0"
+                android:gravity="center"
+                android:text="剩余库存"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_16" />
+        </LinearLayout>
     </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -151,8 +295,8 @@
             android:layout_marginBottom="150dp"
             android:background="@mipmap/returnhints"
             android:gravity="center"
-            android:visibility="visible"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="visible">
 
         </RelativeLayout>
 
@@ -174,8 +318,7 @@
                 android:id="@+id/weighlistview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none"
-                />
+                android:scrollbars="none" />
 
         </RelativeLayout>
 

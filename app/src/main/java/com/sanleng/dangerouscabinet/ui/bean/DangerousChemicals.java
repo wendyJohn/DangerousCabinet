@@ -1,5 +1,7 @@
 package com.sanleng.dangerouscabinet.ui.bean;
 
+import android.widget.TextView;
+
 /**
  * 危化品
  */
@@ -11,9 +13,13 @@ public class DangerousChemicals {
     private String sortLetters; // 显示数据拼音的首字母
     private String equation;
     private String type;
+    private String acidbase;
     private String specifications;
     private String state;
     private String describe;
+    private String usernamea;
+    private String usernameb;
+    private String manufacturer;
 
     public DangerousChemicals() {
         super();
@@ -97,5 +103,37 @@ public class DangerousChemicals {
 
     public void setDescribe(String describe) {
         this.describe = describe;
+    }
+
+    public String getUsernamea() {
+        return usernamea;
+    }
+
+    public void setUsernamea(String usernamea) {
+        this.usernamea = usernamea;
+    }
+
+    public String getUsernameb() {
+        return usernameb;
+    }
+
+    public void setUsernameb(String usernameb) {
+        this.usernameb = usernameb;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public String getAcidbase() {
+        return acidbase;
+    }
+
+    public void setAcidbase(String acidbase) {
+        this.acidbase = acidbase;
     }
 }

@@ -16,16 +16,16 @@ import java.util.List;
 
 
 /**
- * 危化品列表数据适配器
+ * 危化品存放数据适配器
  *
  * @author QiaoShi
  */
-public class DangerousChemicalsAdapter extends BaseAdapter {
+public class StorageAdapter extends BaseAdapter {
 
     private Context context;
     private List<DangerousChemicals> list;
 
-    public DangerousChemicalsAdapter(Context context, List<DangerousChemicals> list) {
+    public StorageAdapter(Context context, List<DangerousChemicals> list) {
         super();
         this.context = context;
         this.list = list;
@@ -67,7 +67,7 @@ public class DangerousChemicalsAdapter extends BaseAdapter {
         ViewHold hold;
         if (convertView == null) {
             hold = new ViewHold();
-            convertView = LayoutInflater.from(context).inflate(R.layout.dangerouschemicals_item, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.storage_item, null);
             convertView.setTag(hold);
         } else {
             hold = (ViewHold) convertView.getTag();
@@ -78,21 +78,37 @@ public class DangerousChemicalsAdapter extends BaseAdapter {
         hold.weight = convertView.findViewById(R.id.weight);
         hold.type = convertView.findViewById(R.id.type);
         hold.specifications = convertView.findViewById(R.id.specifications);
-        hold.blinears = convertView.findViewById(R.id.blinears);
+        hold.state = convertView.findViewById(R.id.state);
+        hold.bottle = convertView.findViewById(R.id.bottle);
+        hold.usernamea = convertView.findViewById(R.id.usernamea);
+        hold.usernameb = convertView.findViewById(R.id.usernameb);
+        hold.manufacturer = convertView.findViewById(R.id.manufacturer);
 
-        hold.rfid.setText(list.get(position).getRfid());
+        hold.rfid.setText("RFID:"+list.get(position).getRfid());
+        hold.rfid.setTextColor(context.getResources().getColor(R.color.actionsheet_blue));
         hold.name.setText(list.get(position).getName());
         hold.equation.setText(list.get(position).getEquation());
-        hold.weight.setText("当前重量    " + list.get(position).getBalancedata());
-        hold.specifications.setText("规格重量    " + list.get(position).getSpecifications());
-        hold.type.setText(list.get(position).getType());
+        hold.weight.setText("当前重量 | " + list.get(position).getBalancedata());
+        hold.specifications.setText("规格重量 | " + list.get(position).getSpecifications());
+        hold.usernamea.setText("操作人 | " + list.get(position).getUsernamea());
+        hold.usernameb.setText("操作人 | " + list.get(position).getUsernameb());
+        hold.manufacturer.setText("厂商: " + list.get(position).getManufacturer());
+        hold.type.setText(list.get(position).getAcidbase());
         String state=list.get(position).getState();
-        if(state.equals("2")){
-            hold.blinears.setBackground(context.getResources().getDrawable(R.mipmap.bottle_in));
+        if(state.equals("in")){
+            hold.state.setBackground(context.getResources().getDrawable(R.mipmap.storage_in));
         }
-        if(state.equals("1")){
-            hold.blinears.setBackground(context.getResources().getDrawable(R.mipmap.bottle_out));
+        if(state.equals("out")){
+            hold.state.setBackground(context.getResources().getDrawable(R.mipmap.storage_out));
         }
+        String bottle=list.get(position).getType();
+        if(bottle.equals("固体")){
+            hold.bottle.setBackground(context.getResources().getDrawable(R.mipmap.solidbottle));
+        }
+        if(bottle.equals("液体")){
+            hold.bottle.setBackground(context.getResources().getDrawable(R.mipmap.liquidbottle));
+        }
+
         return convertView;
     }
 
@@ -103,9 +119,11 @@ public class DangerousChemicalsAdapter extends BaseAdapter {
         public TextView weight;
         public TextView type;
         public TextView specifications;
-        public LinearLayout blinears;
-
-
+        public TextView usernamea;
+        public TextView usernameb;
+        public TextView manufacturer;
+        public ImageView state;
+        public ImageView bottle;
     }
 
     /**

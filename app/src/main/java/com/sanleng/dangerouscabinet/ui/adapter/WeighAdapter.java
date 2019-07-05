@@ -55,8 +55,8 @@ public class WeighAdapter extends BaseAdapter {
             //得到缓存的布局
             viewHolder = (ViewHolder) convertView.getTag();
         }
-
-        viewHolder.sort.setText(position);
+        int i=position+1;
+        viewHolder.sort.setText(i+"");
         viewHolder.name.setText(dataList.get(position).getName());
         viewHolder.weights.setText(dataList.get(position).getBalancedata());
         return convertView;

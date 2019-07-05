@@ -31,6 +31,7 @@ import com.baidu.aip.utils.GlobalSet;
 import com.baidu.aip.utils.PreferencesUtil;
 import com.iflytek.cloud.Setting;
 import com.iflytek.cloud.SpeechUtility;
+import com.sanleng.dangerouscabinet.Presenter.ChemicalRequest;
 import com.sanleng.dangerouscabinet.broadcast.Receiver;
 import com.sanleng.dangerouscabinet.data.SDBHelper;
 import com.sanleng.dangerouscabinet.face.activity.LivenessSettingActivity;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String TYPE_LIVENSS = "TYPE_LIVENSS";
     private List<String> permissionList = null;
     private static final String TAG = MainActivity.class.getSimpleName();
-    int a = 1;//测试数据
+    int a = 1;//测试界面数据
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         addData();//获取voc,温度，湿度。
         initTTS();//语音注册
         new TimeThread().start();
+        ChemicalRequest.GetChemical(MainActivity.this,MyApplication.getMac());//导入最新的服务器化学品信息
     }
 
     @Override

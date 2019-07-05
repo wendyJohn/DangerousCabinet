@@ -20,6 +20,16 @@ public class Dangerous {
     String Manufacturer;//厂商
     String Threshold;//阈值
 
+    String Describe;//描述
+    String ChioUnitCode;
+    String ChioBuildCode;
+    String ChioFloorCode;
+    String ChioRoomCode;
+    String ChioUnitName;
+    String ChioBuildName;
+    String ChioFloorName;
+    String ChioRoomName;
+
     public String getEpc() {
         return Epc;
     }
@@ -138,5 +148,77 @@ public class Dangerous {
 
     public void setThreshold(String threshold) {
         Threshold = threshold;
+    }
+
+    public String getDescribe() {
+        return Describe;
+    }
+
+    public void setDescribe(String describe) {
+        Describe = describe;
+    }
+
+    public String getChioUnitCode() {
+        return ChioUnitCode;
+    }
+
+    public void setChioUnitCode(String chioUnitCode) {
+        ChioUnitCode = chioUnitCode;
+    }
+
+    public String getChioBuildCode() {
+        return ChioBuildCode;
+    }
+
+    public void setChioBuildCode(String chioBuildCode) {
+        ChioBuildCode = chioBuildCode;
+    }
+
+    public String getChioFloorCode() {
+        return ChioFloorCode;
+    }
+
+    public void setChioFloorCode(String chioFloorCode) {
+        ChioFloorCode = chioFloorCode;
+    }
+
+    public String getChioRoomCode() {
+        return ChioRoomCode;
+    }
+
+    public void setChioRoomCode(String chioRoomCode) {
+        ChioRoomCode = chioRoomCode;
+    }
+
+    public String getChioUnitName() {
+        return ChioUnitName;
+    }
+
+    public void setChioUnitName(String chioUnitName) {
+        ChioUnitName = chioUnitName;
+    }
+
+    public String getChioBuildName() {
+        return ChioBuildName;
+    }
+
+    public void setChioBuildName(String chioBuildName) {
+        ChioBuildName = chioBuildName;
+    }
+
+    public String getChioFloorName() {
+        return ChioFloorName;
+    }
+
+    public void setChioFloorName(String chioFloorName) {
+        ChioFloorName = chioFloorName;
+    }
+
+    public String getChioRoomName() {
+        return ChioRoomName;
+    }
+
+    public void setChioRoomName(String chioRoomName) {
+        ChioRoomName = chioRoomName;
     }
 }

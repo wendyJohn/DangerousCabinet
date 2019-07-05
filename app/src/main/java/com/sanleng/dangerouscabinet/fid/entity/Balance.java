@@ -17,7 +17,7 @@ public class Balance implements RS232ReadCallback {
     private volatile static Balance instance;
     private static final String TAG = Balance.class
             .getSimpleName();
-    private String file = "/dev/ttysWK0";
+    private String file = "/dev/ttysWK2";
     private int baud = 9600;
     private int bits = 8;
     private char event = 0;
