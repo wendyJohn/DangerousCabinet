@@ -166,8 +166,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 String data = messageEvent.getMessage();
                 String str = data.replaceAll(" ", "");
                 String balancedata = str.substring(str.indexOf("+") + 1);
-                String weigh = balancedata.replace("g",""); //得到新的字符串
-                System.out.println("=====重量AAA======" + weigh);
+                String weigh = balancedata.replace("g", ""); //得到新的字符串
                 invOnces(weigh.trim());
                 break;
         }
@@ -310,8 +309,8 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                             bean.setBalancedata(Balancedata);
                             bean.setSpecifications(CurrentWeight);
                             bean.setManufacturer(Manufacturer);
-                            bean.setUsernamea("11");
-                            bean.setUsernameb("22");
+                            bean.setUsernamea(PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));
+                            bean.setUsernameb(PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));
                             list.add(bean);
                             depositlist.add(bean);
                             //危化品入库时判断是否已过秤，未过秤给予提示
@@ -331,10 +330,10 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                                 object.put("chioNum", Balancedata);//危化品当前重量
                                 object.put("chioChemicalStoreCode", StationId);//站点ID
                                 object.put("chioChemicalStoreName", StationName);//站点名称
-                                object.put("chioUserName1", "zhoulixing1");//操作人A
-                                object.put("chioUserName2", "zhoulixing3");//操作人B
-                                object.put("chioUserCode1", "0358eda87d8a4f51aec3623fb05d44f1");//操作人A
-                                object.put("chioUserCode2", "a3febbdc86c548448a39d323a959b02a");//操作人B
+                                object.put("chioUserName1", PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));//操作人A
+                                object.put("chioUserName2", PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));//操作人B
+                                object.put("chioUserCode1", PreferenceUtils.getString(OperationActivity.this, "chioUserCode1"));//操作人A
+                                object.put("chioUserCode2", PreferenceUtils.getString(OperationActivity.this, "chioUserCode2"));//操作人B
 
                                 object.put("chioUnitCode", chioUnitCode);
                                 object.put("chioBuildCode", chioBuildCode);
@@ -366,8 +365,8 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                             bean.setBalancedata(Balancedata);
                             bean.setSpecifications(CurrentWeight);
                             bean.setManufacturer(Manufacturer);
-                            bean.setUsernamea("11");
-                            bean.setUsernameb("22");
+                            bean.setUsernamea(PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));
+                            bean.setUsernameb(PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));
                             list.add(bean);
                             taskuotlist.add(bean);
                             //统计本次出库的物资操作记录。
@@ -380,10 +379,10 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                                 object.put("chioNum", Balancedata);//危化品当前重量
                                 object.put("chioChemicalStoreCode", StationId);//站点ID
                                 object.put("chioChemicalStoreName", StationName);//站点名称
-                                object.put("chioUserName1", "zhoulixing1");//操作人A
-                                object.put("chioUserName2", "zhoulixing3");//操作人B
-                                object.put("chioUserCode1", "0358eda87d8a4f51aec3623fb05d44f1");//操作人A
-                                object.put("chioUserCode2", "a3febbdc86c548448a39d323a959b02a");//操作人B
+                                object.put("chioUserName1", PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));//操作人A
+                                object.put("chioUserName2", PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));//操作人B
+                                object.put("chioUserCode1", PreferenceUtils.getString(OperationActivity.this, "chioUserCode1"));//操作人A
+                                object.put("chioUserCode2", PreferenceUtils.getString(OperationActivity.this, "chioUserCode2"));//操作人B
 
                                 object.put("chioUnitCode", chioUnitCode);
                                 object.put("chioBuildCode", chioBuildCode);
@@ -409,7 +408,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                     inventory.setVisibility(View.VISIBLE);//盘点界面打开
                     StorageAdapter storageAdapter = new StorageAdapter(OperationActivity.this, list);
                     storagelistview.setAdapter(storageAdapter);
-                    AccessRequest.GetAccess(OperationActivity.this, Depositarray.toString());
+                    AccessRequest.GetAccessRecords(OperationActivity.this, Depositarray);
                 }
             }
         }, 2000);

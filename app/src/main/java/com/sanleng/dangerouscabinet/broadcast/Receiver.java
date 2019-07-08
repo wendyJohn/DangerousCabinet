@@ -23,6 +23,7 @@ import com.baidu.aip.utils.ImageUtils;
 import com.baidu.aip.utils.PreferencesUtil;
 import com.sanleng.dangerouscabinet.MyApplication;
 import com.sanleng.dangerouscabinet.face.utils.GlobalFaceTypeModel;
+import com.sanleng.dangerouscabinet.fid.entity.Lock;
 
 import java.io.File;
 import java.io.InputStream;
@@ -39,27 +40,28 @@ public class Receiver extends BroadcastReceiver {
     private String groupId = "";
     private Context Context;
     private String username;
+    private String userid;
 
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (action.equals(MyApplication.BROADCAST_ACTION_DISC)) {
             String str = intent.getStringExtra("str_test");
-            String[] strarray = str.split("&");
-            System.out.println(strarray[0]);
-            System.out.println(strarray[1]);
-            String path = "https://slyj.slicity.com" + strarray[0];
-            username = strarray[1];
-            new Task().execute(path);
+            String title = intent.getStringExtra("title");
+            if (title.equals("人脸识别更新")) {
+                try {
+                    String[] strarray = str.split("&");
+                    System.out.println(strarray[0]);
+                    System.out.println(strarray[1]);
+                    String path = "https://slyj.slicity.com" + strarray[0];
+                    username = strarray[1];
+                    userid = strarray[2];
+                    new Task().execute(path);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
-//        if (action.equals(MyApplication.BROADCAST_ACTION_PASS)) {
-//            EventBus.getDefault().post(new MessageEvent(MyApplication.MESSAGE_OUT));
-//        }
-//        if (action.equals(MyApplication.BROADCAST_ACTION_DISMISS)) {
-//            EventBus.getDefault().post(new MessageEvent(MyApplication.MESSAGE_DISMISS));
-//        }
-//        if (action.equals(MyApplication.BROADCAST_ACTION_VIDEO)) {
-//            EventBus.getDefault().post(new MessageEvent(MyApplication.MESSAGE));
-//        }
+
     }
 
 
@@ -114,7 +116,7 @@ public class Receiver extends BroadcastReceiver {
         // 注册来源保存到注册人脸目录
         File faceDir = FileUitls.getFaceDirectory();
         if (faceDir != null) {
-            String imageName = UUID.randomUUID().toString();
+            String imageName = userid;
             File file = new File(faceDir, imageName);
             // 压缩人脸图片至300 * 300，减少网络传输时间
             ImageUtils.resize(bitmap, file, 300, 300);
@@ -143,7 +145,7 @@ public class Receiver extends BroadcastReceiver {
             return;
         }
 
-        final String uid = UUID.randomUUID().toString();
+        final String uid = userid;
         if (TextUtils.isEmpty(filePath)) {
             Toast.makeText(Context, "人脸文件不存在", Toast.LENGTH_LONG).show();
             return;

@@ -43,11 +43,13 @@ public class MyReceiver extends BroadcastReceiver {
                 Log.d(TAG, "[MyReceiver] 接收到推送下来的通知");
                 int notifactionId = bundle.getInt(JPushInterface.EXTRA_NOTIFICATION_ID);
                 String str_test = bundle.getString(JPushInterface.EXTRA_ALERT);
-                System.out.println("==========消息通知============"+ str_test);
+                String title = bundle.getString(JPushInterface.EXTRA_NOTIFICATION_TITLE);
 
-//                Intent myintent = new Intent(BROADCAST_ACTION_DISC);
-//                myintent.putExtra("str_test", str_test);
-//                context.sendBroadcast(myintent, BROADCAST_PERMISSION_DISC);
+                System.out.println("==========消息通知============"+ str_test);
+                Intent myintent = new Intent(BROADCAST_ACTION_DISC);
+                myintent.putExtra("str_test", str_test);
+                myintent.putExtra("title", title);
+                context.sendBroadcast(myintent, BROADCAST_PERMISSION_DISC);
 
                 Log.d(TAG, "[MyReceiver] 接收到推送下来的通知的ID: " + notifactionId);
             } else if (JPushInterface.ACTION_NOTIFICATION_OPENED.equals(intent.getAction())) {
