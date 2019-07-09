@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -25,6 +26,7 @@ import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.data.DBHelpers;
 import com.sanleng.dangerouscabinet.fid.entity.Balance;
 import com.sanleng.dangerouscabinet.fid.entity.EPC;
+import com.sanleng.dangerouscabinet.fid.entity.Lock;
 import com.sanleng.dangerouscabinet.fid.serialportapi.ReaderServiceImpl;
 import com.sanleng.dangerouscabinet.fid.service.CallBack;
 import com.sanleng.dangerouscabinet.fid.service.CallBackStopReadCard;
@@ -58,7 +60,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
     private List<String> listEpc;
     private TextView back;
     public CountDownTimer countdowntimer;
-    private long advertisingTime = 90 * 1000;//90S退出识别认证
+    private long advertisingTime = 90 * 1000;//90S
     private TextView countdown;
     private DBHelpers mOpenHelper;
     private ImageView fans;
@@ -81,7 +83,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
     private TextView removerecords;//取出记录
     private TextView inventory_in;//柜内库存
     private TextView inventory_out;//柜外库存
-    JSONArray Depositarray = new JSONArray();
+    JSONArray Depositarray ;
     List<DangerousChemicals> list = new ArrayList<>();
     List<DangerousChemicals> depositlist = new ArrayList<>();
     List<DangerousChemicals> taskuotlist = new ArrayList<>();
@@ -98,6 +100,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
 
     //初始化
     private void initView() {
+        Lock.getInstance().checkstatus();//开始检查锁的状态
         EventBus.getDefault().register(this);
         mOpenHelper = new DBHelpers(OperationActivity.this);
         back = findViewById(R.id.back);
@@ -109,7 +112,6 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
         fragment = findViewById(R.id.fragment);//还取提示界面
         inventory = findViewById(R.id.inventory);//盘点界面
         fans = findViewById(R.id.fan);
-        fans.setOnClickListener(this);
         Animation fananim = AnimationUtils.loadAnimation(this,
                 R.anim.rotate_circle_anim);
         fans.startAnimation(fananim);// 开始动画
@@ -169,6 +171,10 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 String weigh = balancedata.replace("g", ""); //得到新的字符串
                 invOnces(weigh.trim());
                 break;
+            case MyApplication.MESSAGE_LOCKDATA:
+                invOnce();
+                break;
+
         }
     }
 
@@ -240,7 +246,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
     public void invOnce() {
         listEPC = new ArrayList<>();
         listEpc = new ArrayList<>();
-
+        Depositarray = new JSONArray();
         if (null == ReaderUtil.readers) {
             System.out.println("请先连接设备");
             return;
@@ -293,8 +299,6 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                     JSONObject object = new JSONObject();
                     DangerousChemicals bean = new DangerousChemicals();
                     Boolean exists = ((List) listEpc).contains(epcs);
-                    String operatora = PreferenceUtils.getString(OperationActivity.this, "FaceOne");
-                    String operatorb = PreferenceUtils.getString(OperationActivity.this, "FaceTwo");
                     if (exists) {
                         System.out.println(epcs + "有卡号信息！");//当有卡时判断状态，如果是出库状态则认为现在为入库。
                         if (staus.equals("1")) {
@@ -476,13 +480,17 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                     if (!OperationActivity.this.isFinishing()) {
                         int remainTime = (int) (millisUntilFinished / 1000L);
                         System.out.println("=========倒计时=========" + remainTime + "S");
-                        countdown.setText(remainTime + "秒");
+                        countdown.setText(remainTime + "S");
                     }
                 }
 
                 @Override
                 public void onFinish() { //定时完成后的操作
-                    finish();//关闭密码认证
+                    Intent intent = new Intent(OperationActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                    finish();
+                    Lock.getInstance().closestatus();
                 }
             };
             countdowntimer.start();
@@ -499,6 +507,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 finish();
+                Lock.getInstance().closestatus();
                 break;
             //打开盘点记录界面
             case R.id.accessrecords:
@@ -556,15 +565,6 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 inventory_out.setTextColor(OperationActivity.this.getResources().getColor(R.color.white));
                 Stock("out");
                 break;
-            //测试功能
-            case R.id.fan:
-                invOnce();
-//                weighhints.setVisibility(View.VISIBLE);//称重提示
-//                weigh.setVisibility(View.VISIBLE);//称重界面
-//                returnhints.setVisibility(View.GONE);//还取提示界面
-//                inventory.setVisibility(View.GONE);//盘点界面打开
-                break;
-
         }
     }
 
@@ -633,6 +633,8 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
         });
     }
 
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -640,7 +642,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
         if (countdowntimer != null) {
             countdowntimer.cancel();
         }
-
+        Lock.getInstance().closestatus();
         if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
     }

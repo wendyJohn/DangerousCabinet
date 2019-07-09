@@ -52,6 +52,7 @@ public class Receiver extends BroadcastReceiver {
                     String[] strarray = str.split("&");
                     System.out.println(strarray[0]);
                     System.out.println(strarray[1]);
+                    System.out.println(strarray[2]);
                     String path = "https://slyj.slicity.com" + strarray[0];
                     username = strarray[1];
                     userid = strarray[2];

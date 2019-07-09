@@ -163,7 +163,10 @@ public class PasswordAuthentication extends AppCompatActivity implements View.On
 
                 @Override
                 public void onFinish() { //定时完成后的操作
-                    finish();//关闭密码认证
+                    Intent intent = new Intent(PasswordAuthentication.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                    finish();
                 }
             };
             countdowntimer.start();

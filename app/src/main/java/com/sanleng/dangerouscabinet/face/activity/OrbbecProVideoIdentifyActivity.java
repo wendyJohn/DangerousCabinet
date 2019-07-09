@@ -52,12 +52,15 @@ import com.baidu.aip.utils.GlobalSet;
 import com.baidu.aip.utils.PreferencesUtil;
 import com.baidu.idl.facesdk.model.FaceInfo;
 //import com.githang.stepview.StepView;
+import com.bigkoo.svprogresshud.SVProgressHUD;
 import com.hb.dialog.myDialog.MyImageMsgDialog;
 import com.orbbec.view.OpenGLView;
+import com.sanleng.dangerouscabinet.MainActivity;
 import com.sanleng.dangerouscabinet.R;
 import com.sanleng.dangerouscabinet.data.DBHelpers;
 import com.sanleng.dangerouscabinet.face.utils.GlobalFaceTypeModel;
 import com.sanleng.dangerouscabinet.fid.entity.Lock;
+import com.sanleng.dangerouscabinet.ui.activity.OperationActivity;
 import com.sanleng.dangerouscabinet.ui.activity.PasswordAuthentication;
 import com.sanleng.dangerouscabinet.ui.activity.ReturnOperation;
 import com.sanleng.dangerouscabinet.ui.view.StepView;
@@ -187,6 +190,10 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
         mContext = this;
         PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceOne", "暂无人脸名称");
         PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceTwo", "暂无人脸名称");
+        PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "chioUserName1", "1号暂无名称");
+        PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "chioUserCode1", "1号暂无ID");
+        PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "chioUserName2", "2号暂无名称");
+        PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "chioUserCode2", "2号暂无ID");
         //registerHomeListener();
         Intent intent = getIntent();
         if (intent != null) {
@@ -455,6 +462,9 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.back:
+                Intent intent = new Intent(OrbbecProVideoIdentifyActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 finish();
                 break;
             case R.id.nextstep:
@@ -478,14 +488,13 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                             // 等待2000毫秒后销毁此页面，并开门
                             Lock.getInstance().sendA();
                             mOpenHelper.deleterecords();
-                            Intent intent = new Intent(OrbbecProVideoIdentifyActivity.this, ReturnOperation.class);
+                            Intent intent = new Intent(OrbbecProVideoIdentifyActivity.this, OperationActivity.class);
                             startActivity(intent);
                             finish();
                         }
                     }, 2000);
                 }
                 break;
-
         }
     }
 
@@ -867,11 +876,15 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                         if (file != null && file.exists()) {
                             Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                             matchAvatorIv.setImageBitmap(bitmap);
+                            System.out.println("==========用户ID==========" + user.getUserId());
                             //第一个人脸名称
                             String faceone = PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne");
                             if (faceone.equals("暂无人脸名称")) {
                                 PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceOne", user.getUserInfo());
+                                PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "chioUserName1", user.getUserInfo());
+                                PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "chioUserCode1", user.getUserId());
                                 TTSUtils.getInstance().speak("识别成功，请识别第二张人脸");
+                                new SVProgressHUD(OrbbecProVideoIdentifyActivity.this).showSuccessWithStatus("识别成功");
                                 mSV1.setBottomText(new String[]{PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"),"请识别第二张人脸","识别成功"});
                                 mSV1.setCurrentStep(2);  //设置当前进度
                             } else {
@@ -880,7 +893,10 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
                                 if (!user.getUserInfo().equals(PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"))) {
                                     if (facetwo.equals("暂无人脸名称")) {
                                         PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "FaceTwo", user.getUserInfo());
+                                        PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "chioUserName2", user.getUserInfo());
+                                        PreferenceUtils.setString(OrbbecProVideoIdentifyActivity.this, "chioUserCode2", user.getUserId());
                                         TTSUtils.getInstance().speak("识别成功，识别认证通过可进行下一步操作");
+                                        new SVProgressHUD(OrbbecProVideoIdentifyActivity.this).showSuccessWithStatus("识别成功");
                                         mSV1.setBottomText(new String[]{PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceOne"),PreferenceUtils.getString(OrbbecProVideoIdentifyActivity.this, "FaceTwo"),"识别成功"});
                                         mSV1.setCurrentStep(3);  //设置当前进度
 
@@ -1074,7 +1090,10 @@ public class OrbbecProVideoIdentifyActivity extends Activity implements OpenNIHe
 
                 @Override
                 public void onFinish() { //定时完成后的操作
-                    finish();//关闭人脸识别
+                    Intent intent = new Intent(OrbbecProVideoIdentifyActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                    finish();
                 }
             };
             countdowntimer.start();

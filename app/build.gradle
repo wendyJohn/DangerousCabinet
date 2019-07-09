@@ -62,5 +62,6 @@ dependencies {
     //Cardview
     implementation 'com.android.support:cardview-v7:28.0.0'
     implementation files('libs/Msc.jar')
+    implementation 'com.bigkoo:svprogresshud:1.0.6'
 
 }

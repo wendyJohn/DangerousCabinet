@@ -1,14 +1,22 @@
 package com.sanleng.dangerouscabinet.fid.entity;
 
 import android.content.Context;
+import android.os.Handler;
 
 
+import com.sanleng.dangerouscabinet.MyApplication;
 import com.sanleng.dangerouscabinet.fid.service.CallBacks;
+import com.sanleng.dangerouscabinet.utils.MessageEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Lock implements RS232ReadCallback {
     private volatile static Lock instance;
@@ -19,7 +27,7 @@ public class Lock implements RS232ReadCallback {
     private int bits = 8;
     private char event = 0;
     private int stopbits = 1;
-    RS232Controller rs232Controllers =new RS232Controller();
+    RS232Controller rs232Controllers = new RS232Controller();
     // 通过RS232Controller实例获取串口
     int flag = rs232Controllers.Rs232_Open(file, baud, bits, event, stopbits, this);
 
@@ -38,6 +46,18 @@ public class Lock implements RS232ReadCallback {
     final String OPENF = "68010602ffff16";
     final String OPENG = "68010702ffff16";
     private Context context;
+    public long start;
+    Handler handler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            // 要做的事情
+            abc[3] = 0X01;
+            send(abc);   //发送数据
+            handler.postDelayed(this, 5000);
+        }
+    };
 
     public static synchronized Lock getInstance() {
         if (instance == null) {
@@ -81,6 +101,14 @@ public class Lock implements RS232ReadCallback {
         rs232Controllers.Rs232_Write(data);
     }
 
+//开启查询门锁状态
+    public void checkstatus() {
+        handler.postDelayed(runnable, 5000);// 每5秒执行一次runnable.
+    }
+    //关闭查询门锁状态
+    public void closestatus() {
+        handler.removeCallbacks(runnable);//关闭定时器
+    }
 
     public void setLocksStatus(CallBacks callBacks, String question) {
         System.out.println("执行操作--->" + question);
@@ -252,57 +280,93 @@ public class Lock implements RS232ReadCallback {
             tmp = data.length;
             if (tmp == 7) {
                 if ((data[0] == (byte) 0x68) && (data[6] == (byte) 0x16)) {
-                    System.out.println(new String(Arrays.toString(data)));
+                    int id = (int) data[2] - 1;
+                    if (data[3] == 0x02)  // 开锁操作反馈状态
                     {
-                        int id = (int) data[2] - 1;
-                        if (data[3] == 0x02)  // 开锁操作反馈状态
-                        {
-                            if ((data[4] == 0x00) && (data[5] == 0x00)) {
-                                locker[id] = 0;
-                            } else {
-                                locker[id] = 1;
-                            }
-                        }
-                        if (data[3] == 0x04)  // 查询操作反馈状态
-                        {
-                            if ((data[4] == 0x00) && (data[5] == 0x00)) {
-                                locker[id] = 0;
-                            } else {
-                                locker[id] = 1;
-                            }
+                        System.out.println("收到数据长度：" + data.length);
+                        System.out.println("收到开锁反馈：" + bytesToHexString(data));
+                        if ((data[4] == 0x00) && (data[5] == 0x00)) {
+                            System.out.println(id + 1 + "号门开了.");
                         }
                     }
                 }
+            } else if (tmp == 15) {
+                if ((data[0] == (byte) 0x68) && (data[14] == (byte) 0x16)) {
+                    if (data[3] == 0x01)  // 查询操作反馈状态
+                    {
+                        System.out.println("收到数据长度：" + data.length);
+                        System.out.println("收到查询反馈：" + bytesToHexString(data));
+                        String lockstatus = Integer.toBinaryString((data[10] & 0xFF) + 0x100).substring(1);
+                        System.out.println("门状态：" + lockstatus);
 
-                int i, locksum = 0;
-                for (i = 0; i < locker.length; i++) {
-                    locksum = locksum + locker[i];
-                }
-
-                if (locksum == 8) {
-                    result = false;
-                } else {
-                    result = true;
-                }
-            } else {
-                try {
-                    System.out.println(new String(data, "GB2312"));
-                } catch (UnsupportedEncodingException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                        if (data[10] == -1) {
+                            System.out.println("门都已关闭");
+                            MessageEvent messageEvent = new MessageEvent(MyApplication.MESSAGE_LOCKDATA);
+                            EventBus.getDefault().post(messageEvent);
+                        }
+                    }
                 }
             }
-            System.out.println("收到" + tmp + "个字节");
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+
+//        try {
+//            tmp = data.length;
+//            if (tmp == 7) {
+//                if ((data[0] == (byte) 0x68) && (data[6] == (byte) 0x16)) {
+//                    System.out.println(new String(Arrays.toString(data)));
+//                    {
+//                        int id = (int) data[2] - 1;
+//                        if (data[3] == 0x02)  // 开锁操作反馈状态
+//                        {
+//                            if ((data[4] == 0x00) && (data[5] == 0x00)) {
+//                                locker[id] = 0;
+//                            } else {
+//                                locker[id] = 1;
+//                            }
+//                        }
+//                        if (data[3] == 0x04)  // 查询操作反馈状态
+//                        {
+//                            if ((data[4] == 0x00) && (data[5] == 0x00)) {
+//                                locker[id] = 0;
+//                            } else {
+//                                locker[id] = 1;
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                int i, locksum = 0;
+//                for (i = 0; i < locker.length; i++) {
+//                    locksum = locksum + locker[i];
+//                }
+//
+//                if (locksum == 8) {
+//                    result = false;
+//                } else {
+//                    result = true;
+//                }
+//            } else {
+//                try {
+//                    System.out.println(new String(data, "GB2312"));
+//                } catch (UnsupportedEncodingException e1) {
+//                    // TODO Auto-generated catch block
+//                    e1.printStackTrace();
+//                }
+//            }
+//            System.out.println("收到" + tmp + "个字节");
+//        } catch (Exception e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//        try {
+//            Thread.sleep(100);
+//        } catch (InterruptedException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
 
 /*        String tempStr = null;
         tempStr = new String(data, 0, data.length);
@@ -312,5 +376,21 @@ public class Lock implements RS232ReadCallback {
         msg.what = READMESSAGE;
 
         mHandler.sendMessage(msg);*/
+    }
+
+    public static String bytesToHexString(byte[] src) {
+        StringBuilder stringBuilder = new StringBuilder("");
+        if (src == null || src.length <= 0) {
+            return null;
+        }
+        for (int i = 0; i < src.length; i++) {
+            int v = src[i] & 0xFF;
+            String hv = Integer.toHexString(v);
+            if (hv.length() < 2) {
+                stringBuilder.append(0);
+            }
+            stringBuilder.append(hv);
+        }
+        return stringBuilder.toString();
     }
 }
