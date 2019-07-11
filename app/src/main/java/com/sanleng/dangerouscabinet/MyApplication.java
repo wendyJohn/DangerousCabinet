@@ -10,6 +10,7 @@ public class MyApplication extends Application {
     public static final int REQUEST_CODE_ASK_PERMISSIONS = 0x1231232;
     public static final int MESSAGE_BANLANCEDATA = 0x1231542;
     public static final int MESSAGE_LOCKDATA = 0x12312356;
+    public static final int MESSAGE_LOCKSTATE = 0x12332356;
     public static final int MESSAGE_TIME = 0x1254542;
     public static final String BROADCAST_ACTION_DISC = "com.permissions.myf_broadcast";
     public static final String BROADCAST_PERMISSION_DISC = "com.permissions.MYF_BROADCAST";

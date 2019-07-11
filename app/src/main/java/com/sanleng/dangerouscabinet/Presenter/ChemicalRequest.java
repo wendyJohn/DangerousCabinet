@@ -8,9 +8,6 @@ import com.sanleng.dangerouscabinet.net.URLs;
 import com.sanleng.dangerouscabinet.ui.bean.Chemical;
 import com.sanleng.dangerouscabinet.ui.bean.Dangerous;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

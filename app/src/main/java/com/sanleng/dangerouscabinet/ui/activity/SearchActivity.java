@@ -6,15 +6,12 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.sanleng.dangerouscabinet.MainActivity;
@@ -102,9 +99,9 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String str = lista.get(position);
                 if(str.equals("柜内")){
-                    spinnerstra="in";
+                    spinnerstra="2";
                 }else{
-                    spinnerstra="out";
+                    spinnerstra="1";
                 }
                 addData(spinnerstra, spinnerstrb, spinnerstrc);
             }

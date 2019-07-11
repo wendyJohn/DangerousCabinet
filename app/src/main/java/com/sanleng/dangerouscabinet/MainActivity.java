@@ -33,7 +33,7 @@ import com.iflytek.cloud.Setting;
 import com.iflytek.cloud.SpeechUtility;
 import com.sanleng.dangerouscabinet.Presenter.ChemicalRequest;
 import com.sanleng.dangerouscabinet.broadcast.Receiver;
-import com.sanleng.dangerouscabinet.data.SDBHelper;
+import com.sanleng.dangerouscabinet.data.DBHelpers;
 import com.sanleng.dangerouscabinet.face.activity.LivenessSettingActivity;
 import com.sanleng.dangerouscabinet.face.activity.OrbbecProVideoIdentifyActivity;
 import com.sanleng.dangerouscabinet.face.activity.RgbVideoIdentityActivity;
@@ -45,9 +45,6 @@ import com.sanleng.dangerouscabinet.ui.activity.SearchActivity;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;
 import com.sanleng.dangerouscabinet.utils.Utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -83,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<String> permissionList = null;
     private static final String TAG = MainActivity.class.getSimpleName();
     int a = 1;//测试界面数据
+    private DBHelpers mOpenHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         addData();//获取voc,温度，湿度。
         initTTS();//语音注册
         new TimeThread().start();
+        mOpenHelper = new DBHelpers(this);
         ChemicalRequest.GetChemical(MainActivity.this,MyApplication.getMac());//导入最新的服务器化学品信息
     }
 
@@ -106,9 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         hideBottomUIMenu();
-        if (Utils.foFile() == false) {
-            new Thread(runnables).start();
-        }
+
     }
 
     @Override
@@ -215,11 +212,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void initStart() {
             }
-
             @Override
             public void initSuccess() {
             }
-
             @Override
             public void initFail(int errorCode, String msg) {
             }
@@ -329,10 +324,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case 0x10:
                 if (grantResults.length > 0 && ifGrantResult(grantResults)) {
                     Toast.makeText(this, "同意权限申请", Toast.LENGTH_SHORT).show();
-
                 } else {
                     Toast.makeText(this, "权限被拒绝了", Toast.LENGTH_SHORT).show();
-//                    finish();
+                    finish();
                 }
                 break;
         }
@@ -384,8 +378,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //搜索查询
             case R.id.search:
                 startActivity(new Intent(this, SearchActivity.class));
-//                TTSUtils.getInstance().speak("请注意，当前温度过高");
-//                TTSUtils.getInstance().speak("请注意，当前门未关起，请注意，当前门未关起");
                 break;
             //人脸认证
             case R.id.faceverification:
@@ -447,7 +439,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //===============================人脸识别============================
     private String[] items;
-
     public void showSingleAlertDialog() {
         List<Group> groupList = FaceApi.getInstance().getGroupList(0, 1000);
         if (groupList.size() <= 0) {
@@ -460,7 +451,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             items[i] = group.getGroupId();
         }
         choiceIdentityType(items[0]);
-
     }
 
     private void choiceIdentityType(String groupId) {
@@ -534,25 +524,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    Runnable runnables = new Runnable() {
-        @Override
-        public void run() {
-            // TODO Auto-generated method stub
-            String databaseFilename = SDBHelper.DB_DIRS + File.separator + "dangerconfig.db";
-            InputStream is = getResources().openRawResource(R.raw.dangerconfig);
-            FileOutputStream fos;
-            try {
-                fos = new FileOutputStream(databaseFilename);
-                byte[] buffer = new byte[8192];
-                int count = 0;
-                while ((count = is.read(buffer)) > 0) {
-                    fos.write(buffer, 0, count);
-                }
-                fos.close();
-                is.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
 }

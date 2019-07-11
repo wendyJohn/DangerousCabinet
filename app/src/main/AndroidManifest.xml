@@ -107,6 +107,5 @@
         <activity android:name=".face.activity.OrbbecProLivenessDetectActivity" />
         <activity android:name=".face.activity.OrbbecProVideoIdentifyActivity" />
         <activity android:name=".face.activity.FacePreviewImageSetActivity"></activity>
-
     </application>
 </manifest>

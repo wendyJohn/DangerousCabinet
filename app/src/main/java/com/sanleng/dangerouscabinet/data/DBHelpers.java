@@ -2,36 +2,80 @@ package com.sanleng.dangerouscabinet.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-
-import com.sanleng.dangerouscabinet.MyApplication;
 import com.sanleng.dangerouscabinet.ui.bean.Dangerous;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class DBHelpers extends SQLiteOpenHelper {
-    private static DBHelpers instance;
-    public final static int DATABASEVERSION = 1;
-
-    private static Context mContext;
-
-    public static final String mDbName = SDBHelper.DB_DIRS + File.separator + "dangerconfig.db";
-
+    private static final String DB_NAME = "dangerconfig.db";//数据库名字
+    private static final int DB_VERSION = 1; //数据库版本号
+    private SQLiteDatabase db;
+    private String filePath;  //数据库存储路径
     public DBHelpers(Context context) {
-        super(context, mDbName, null, DATABASEVERSION);
-        mContext = context;
+        super(context, DB_NAME, null, DB_VERSION);
+        // 初始化数据库路径 (这个路径不能改变，因为是保存在内部安装文件夹中的，自己写的创建数据库也在这个路径下)
+        filePath = "//data//data//" + context.getPackageName() + "//databases";
+        //必须实例化的时候调用此方法，否则会报错
+        initExternalDB(context);
+        db = getWritableDatabase();
     }
 
-    public static DBHelpers getInstance(Context context) {
-        mContext = context;
-        if (instance == null) {
-            instance = new DBHelpers(MyApplication.instance);
+    /**
+     * 初始化外部数据库
+     *
+     * @param context
+     */
+    private void initExternalDB(Context context) {
+        InputStream is = null;
+        FileOutputStream fos = null;
+        // 打开Assets目录下的数据库文件
+        try {
+            is = context.getAssets().open("databases/" + DB_NAME);
+            // 存放数据库的目录不存在，则创建
+            File file = new File(filePath);
+            if (!file.exists()) {
+                file.mkdir();
+            }
+            // 准备将外部库写入系统目录
+            File dbFile = new File(filePath + "//" + DB_NAME + "//");
+            // 数据库文件不存在则写入
+            SharedPreferences preferences = context.getSharedPreferences("dbVersion", 0);
+            int dbVersion = preferences.getInt("dbVersion", 1);
+            if (!dbFile.exists() || DB_VERSION > dbVersion) {
+                fos = new FileOutputStream(dbFile);
+                byte[] buf = new byte[1024];
+                int len = -1;
+                while ((len = is.read(buf)) != -1) {
+                    fos.write(buf, 0, len);
+                    fos.flush();
+                }
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt("dbVersion", DB_VERSION);
+                editor.commit();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        return instance;
     }
 
     @Override
@@ -40,30 +84,19 @@ public class DBHelpers extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onOpen(SQLiteDatabase db) {
-        // TODO Auto-generated method stub
-        super.onOpen(db);
-        if (!db.isReadOnly()) {
-            // Enable foreign key constraints
-            db.execSQL("PRAGMA foreign_keys=ON;");
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (newVersion > oldVersion) {
+            onCreate(db);
         }
     }
 
-    public Cursor query(String sql, String[] args) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(sql, args);
-        return cursor;
+    public Cursor query(String sql, String... selectionArgs) {
+        return db.rawQuery(sql, selectionArgs);
     }
 
     //初始化本地数据库数据
     public void insert(Dangerous dangerous) {
-        SQLiteDatabase db = getWritableDatabase();
+        db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("Epc", dangerous.getEpc());
         values.put("Ant", dangerous.getAnt());
@@ -88,13 +121,12 @@ public class DBHelpers extends SQLiteOpenHelper {
         values.put("ChioBuildName", dangerous.getChioBuildName());
         values.put("ChioFloorName", dangerous.getChioFloorName());
         values.put("ChioRoomName", dangerous.getChioRoomName());
-
         db.insert("materialtable", null, values);
     }
 
     //更新危化品状态
     public int update(String epc, String staus) {
-        SQLiteDatabase db = getWritableDatabase();
+        db = getWritableDatabase();
         ContentValues updatedValues = new ContentValues();
         updatedValues.put("Staus", staus);
         String where = "Epc=" + "'" + epc + "'";
@@ -103,7 +135,7 @@ public class DBHelpers extends SQLiteOpenHelper {
 
     //更新危化品重量
     public int updatebalancedata(String epc, String balancedata) {
-        SQLiteDatabase db = getWritableDatabase();
+        db = getWritableDatabase();
         ContentValues updatedValues = new ContentValues();
         updatedValues.put("Balancedata", balancedata);
         String where = "Epc=" + "'" + epc + "'";
@@ -112,7 +144,7 @@ public class DBHelpers extends SQLiteOpenHelper {
 
     //危化品过秤记录
     public void insertweigh(String epc, String name, String weigh) {
-        SQLiteDatabase db = getWritableDatabase();
+        db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("Epc", epc);
         values.put("Name", name);
@@ -122,13 +154,13 @@ public class DBHelpers extends SQLiteOpenHelper {
 
     //清空表数据
     public void delete() {
-        SQLiteDatabase db = getWritableDatabase();
+        db = getWritableDatabase();
         db.delete("materialtable", null, null);
     }
 
     //清空操作记录表数据
     public void deleterecords() {
-        SQLiteDatabase db = getWritableDatabase();
+        db = getWritableDatabase();
         db.delete("operationalrecords", null, null);
     }
 

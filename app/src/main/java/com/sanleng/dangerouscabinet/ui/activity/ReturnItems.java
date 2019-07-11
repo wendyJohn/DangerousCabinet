@@ -21,7 +21,6 @@ import com.sanleng.dangerouscabinet.fid.service.CallBackStopReadCard;
 import com.sanleng.dangerouscabinet.fid.service.ReaderService;
 import com.sanleng.dangerouscabinet.fid.tool.ReaderUtil;
 import com.sanleng.dangerouscabinet.fid.util.DataFilter;
-import com.sanleng.dangerouscabinet.utils.Inventory;
 import com.sanleng.dangerouscabinet.utils.MessageEvent;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;
 

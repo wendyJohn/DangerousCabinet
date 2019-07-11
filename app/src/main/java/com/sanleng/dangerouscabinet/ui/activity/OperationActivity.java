@@ -1,13 +1,15 @@
 package com.sanleng.dangerouscabinet.ui.activity;
 
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -48,6 +50,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,8 +62,8 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
     private List<EPC> listEPC;
     private List<String> listEpc;
     private TextView back;
-    public CountDownTimer countdowntimer;
-    private long advertisingTime = 90 * 1000;//90S
+    public CountDownTimer countdowntimers;
+    private long advertisingTimes = 10 * 1000;//关门后无操作时返回首页
     private TextView countdown;
     private DBHelpers mOpenHelper;
     private ImageView fans;
@@ -83,24 +86,26 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
     private TextView removerecords;//取出记录
     private TextView inventory_in;//柜内库存
     private TextView inventory_out;//柜外库存
-    JSONArray Depositarray ;
-    List<DangerousChemicals> list = new ArrayList<>();
-    List<DangerousChemicals> depositlist = new ArrayList<>();
-    List<DangerousChemicals> taskuotlist = new ArrayList<>();
-    List<DangerousChemicals> stocklista;//柜内
-    List<DangerousChemicals> stocklistb;//柜外
+    private JSONArray Depositarray;
+    private List<DangerousChemicals> list = new ArrayList<>();
+    private List<DangerousChemicals> depositlist = new ArrayList<>();
+    private List<DangerousChemicals> taskuotlist = new ArrayList<>();
+    private List<DangerousChemicals> stocklista;//柜内
+    private List<DangerousChemicals> stocklistb;//柜外
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_operation);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
         initView();
         hideBottomUIMenu();
     }
 
     //初始化
     private void initView() {
-        Lock.getInstance().checkstatus();//开始检查锁的状态
+        Lock.getInstance().checkstatus();
         EventBus.getDefault().register(this);
         mOpenHelper = new DBHelpers(OperationActivity.this);
         back = findViewById(R.id.back);
@@ -118,7 +123,6 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
         weighlistview = findViewById(R.id.weighlistview);
         storagelistview = findViewById(R.id.storagelistview);//存放数据展示界面
         inventorylistview = findViewById(R.id.inventorylistview);//库存数据展示界面
-
         accessrecords = findViewById(R.id.accessrecords);//打开盘点记录界面
         accessrecords.setOnClickListener(this);
         inventoryrecords = findViewById(R.id.inventoryrecords);//打开盘点记录界面
@@ -135,6 +139,25 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
         removerecords.setOnClickListener(this);
         inventory_in.setOnClickListener(this);
         inventory_out.setOnClickListener(this);
+        mediaPlayer = new MediaPlayer();//这个我定义了一个成员函数
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.seekTo(0);
+            }
+        });
+        AssetFileDescriptor file = getResources().openRawResourceFd(R.raw.beep);
+        try {
+            mediaPlayer.setDataSource(file.getFileDescriptor(),
+                    file.getStartOffset(), file.getLength());
+            file.close();
+//            mediaPlayer.setVolume(BEEP_VOLUME, BEEP_VOLUME);
+            mediaPlayer.prepare();
+        } catch (IOException ioe) {
+            mediaPlayer = null;
+        }
+
     }
 
 
@@ -149,8 +172,8 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
     protected void onPause() {
         super.onPause();
         //当activity不在前台是停止定时
-        if (countdowntimer != null) {
-            countdowntimer.cancel();
+        if (countdowntimers != null) {
+            countdowntimers.cancel();
             System.out.println("==================" + "取消定时");
         }
     }
@@ -171,8 +194,13 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 String weigh = balancedata.replace("g", ""); //得到新的字符串
                 invOnces(weigh.trim());
                 break;
+            case MyApplication.MESSAGE_LOCKSTATE:
+                TTSUtils.getInstance().speak("请注意当前门未关起");
+                mediaPlayer.start();
+                break;
             case MyApplication.MESSAGE_LOCKDATA:
                 invOnce();
+                Lock.getInstance().closestatus();
                 break;
 
         }
@@ -211,13 +239,11 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 while (cursor.moveToNext()) {
                     String epcs = cursor.getString(cursor.getColumnIndex("Epc"));
                     String Name = cursor.getString(cursor.getColumnIndex("Name"));
-
                     weighhints.setVisibility(View.VISIBLE);//称重提示打开
                     weigh.setVisibility(View.VISIBLE);//称重界面打开
                     returnhints.setVisibility(View.GONE);//还取提示界面关闭
                     inventory.setVisibility(View.GONE);//盘点界面关闭
                     fragment.setVisibility(View.VISIBLE);//归还提示和称重界面关闭
-
                     TTSUtils.getInstance().speak("本次称重物品是" + Name + "重量为" + balancedata);
                     //更新本地重量并提交服务器,生成过秤记录
                     mOpenHelper.updatebalancedata(epcs, balancedata);//更新数据重量并提交更新服务器数据
@@ -240,7 +266,6 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
             }
         }, 2000);
     }
-
 
     //正常盘点数据
     public void invOnce() {
@@ -286,7 +311,6 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                     String Type = cursor.getString(cursor.getColumnIndex("Type"));
                     String CurrentWeight = cursor.getString(cursor.getColumnIndex("CurrentWeight"));
                     String Manufacturer = cursor.getString(cursor.getColumnIndex("Manufacturer"));
-
                     String chioUnitCode = cursor.getString(cursor.getColumnIndex("ChioUnitCode"));
                     String chioBuildCode = cursor.getString(cursor.getColumnIndex("ChioBuildCode"));
                     String chioFloorCode = cursor.getString(cursor.getColumnIndex("ChioFloorCode"));
@@ -320,8 +344,8 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                             //危化品入库时判断是否已过秤，未过秤给予提示
 //                            Cursor cursors = mOpenHelper.query("select * from operationalrecords where Epc=" + "'" + epcs + "'", null);
 //                            while (cursors.moveToNext()) {
-////                                String Names = cursor.getString(cursor.getColumnIndex("Name"));
-////                                TTSUtils.getInstance().speak("请注意，当前您有危化品未过秤。");
+//                                String Names = cursor.getString(cursor.getColumnIndex("Name"));
+//                                TTSUtils.getInstance().speak("请注意，当前您有危化品未过秤。");
 //                            }
 //                            cursors.close();
                             //统计本次物品入库的操作记录
@@ -336,9 +360,8 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                                 object.put("chioChemicalStoreName", StationName);//站点名称
                                 object.put("chioUserName1", PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));//操作人A
                                 object.put("chioUserName2", PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));//操作人B
-                                object.put("chioUserCode1", PreferenceUtils.getString(OperationActivity.this, "chioUserCode1"));//操作人A
-                                object.put("chioUserCode2", PreferenceUtils.getString(OperationActivity.this, "chioUserCode2"));//操作人B
-
+                                object.put("chioUserCode1", PreferenceUtils.getString(OperationActivity.this, "chioUserCode1"));//操作人CODEA
+                                object.put("chioUserCode2", PreferenceUtils.getString(OperationActivity.this, "chioUserCode2"));//操作人CODEB
                                 object.put("chioUnitCode", chioUnitCode);
                                 object.put("chioBuildCode", chioBuildCode);
                                 object.put("chioFloorCode", chioFloorCode);
@@ -353,7 +376,6 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                             }
                         }
                     }
-
                     //当无卡时则认为现在为出库，并修改物资为出库状态。
                     else {
                         System.out.println(epcs + "无卡号信息！");
@@ -380,14 +402,13 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                                 object.put("chioSubstanceCode", ids);//危化品ID
                                 object.put("chioSubstanceName", Name);//危化品名称
                                 object.put("chioSubstanceFormula", Equation);//危化品方程式
-                                object.put("chioNum", Balancedata);//危化品当前重量
+                                object.put("chioNum", Balancedata);//危化品当前重B
                                 object.put("chioChemicalStoreCode", StationId);//站点ID
                                 object.put("chioChemicalStoreName", StationName);//站点名称
                                 object.put("chioUserName1", PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));//操作人A
                                 object.put("chioUserName2", PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));//操作人B
-                                object.put("chioUserCode1", PreferenceUtils.getString(OperationActivity.this, "chioUserCode1"));//操作人A
-                                object.put("chioUserCode2", PreferenceUtils.getString(OperationActivity.this, "chioUserCode2"));//操作人B
-
+                                object.put("chioUserCode1", PreferenceUtils.getString(OperationActivity.this, "chioUserCode1"));//操作人CODEA
+                                object.put("chioUserCode2", PreferenceUtils.getString(OperationActivity.this, "chioUserCode2"));//操作人CODE
                                 object.put("chioUnitCode", chioUnitCode);
                                 object.put("chioBuildCode", chioBuildCode);
                                 object.put("chioFloorCode", chioFloorCode);
@@ -413,6 +434,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                     StorageAdapter storageAdapter = new StorageAdapter(OperationActivity.this, list);
                     storagelistview.setAdapter(storageAdapter);
                     AccessRequest.GetAccessRecords(OperationActivity.this, Depositarray);
+                    startTime();
                 }
             }
         }, 2000);
@@ -470,11 +492,11 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
 
 
     /**
-     * 定时关闭密码认证功能
+     * 门未关的时间的监听
      */
     public void startTime() {
-        if (countdowntimer == null) {
-            countdowntimer = new CountDownTimer(advertisingTime, 1000l) {
+        if (countdowntimers == null) {
+            countdowntimers = new CountDownTimer(advertisingTimes, 1000l) {
                 @Override
                 public void onTick(long millisUntilFinished) {
                     if (!OperationActivity.this.isFinishing()) {
@@ -486,16 +508,16 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
 
                 @Override
                 public void onFinish() { //定时完成后的操作
+                    //跳转到页面
                     Intent intent = new Intent(OperationActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
                     finish();
-                    Lock.getInstance().closestatus();
                 }
             };
-            countdowntimer.start();
+            countdowntimers.start();
         } else {
-            countdowntimer.start();
+            countdowntimers.start();
         }
     }
 
@@ -634,13 +656,12 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
     }
 
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         //销毁时停止定时
-        if (countdowntimer != null) {
-            countdowntimer.cancel();
+        if (countdowntimers != null) {
+            countdowntimers.cancel();
         }
         Lock.getInstance().closestatus();
         if (EventBus.getDefault().isRegistered(this))

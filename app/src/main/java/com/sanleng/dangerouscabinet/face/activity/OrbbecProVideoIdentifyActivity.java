@@ -61,8 +61,6 @@ import com.sanleng.dangerouscabinet.data.DBHelpers;
 import com.sanleng.dangerouscabinet.face.utils.GlobalFaceTypeModel;
 import com.sanleng.dangerouscabinet.fid.entity.Lock;
 import com.sanleng.dangerouscabinet.ui.activity.OperationActivity;
-import com.sanleng.dangerouscabinet.ui.activity.PasswordAuthentication;
-import com.sanleng.dangerouscabinet.ui.activity.ReturnOperation;
 import com.sanleng.dangerouscabinet.ui.view.StepView;
 import com.sanleng.dangerouscabinet.utils.PreferenceUtils;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;

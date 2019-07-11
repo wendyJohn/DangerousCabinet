@@ -2,7 +2,6 @@ package com.sanleng.dangerouscabinet.Presenter;
 
 import android.content.Context;
 
-import com.sanleng.dangerouscabinet.data.DBHelpers;
 import com.sanleng.dangerouscabinet.net.Request_Interface;
 import com.sanleng.dangerouscabinet.net.URLs;
 import com.sanleng.dangerouscabinet.ui.bean.AccessMag;

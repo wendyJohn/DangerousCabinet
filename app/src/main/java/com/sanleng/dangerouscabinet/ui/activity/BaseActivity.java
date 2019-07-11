@@ -10,22 +10,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.sanleng.dangerouscabinet.MainActivity;
-import com.sanleng.dangerouscabinet.R;
-import com.sanleng.dangerouscabinet.data.SDBHelper;
-import com.sanleng.dangerouscabinet.net.URLs;
-import com.sanleng.dangerouscabinet.utils.Utils;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 
 public abstract class BaseActivity extends AppCompatActivity {
     public CountDownTimer countDownTimer;
-    private long advertisingTime = 300 * 1000;//无操作时跳转首页时间
+    private long advertisingTime = 600 * 1000;//无操作时跳转首页时间
     public Context context;
 
     @Override
@@ -93,9 +83,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onResume();
         //显示是启动定时
         startTime();
-        if (Utils.foFile() == false) {
-            new Thread(runnables).start();
-        }
     }
 
     @Override
@@ -135,26 +122,4 @@ public abstract class BaseActivity extends AppCompatActivity {
             decorView.setSystemUiVisibility(uiOptions);
         }
     }
-
-    Runnable runnables = new Runnable() {
-        @Override
-        public void run() {
-            // TODO Auto-generated method stub
-            String databaseFilename = SDBHelper.DB_DIRS + File.separator + "dangerconfig.db";
-            InputStream is = getResources().openRawResource(R.raw.dangerconfig);
-            FileOutputStream fos;
-            try {
-                fos = new FileOutputStream(databaseFilename);
-                byte[] buffer = new byte[8192];
-                int count = 0;
-                while ((count = is.read(buffer)) > 0) {
-                    fos.write(buffer, 0, count);
-                }
-                fos.close();
-                is.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
 }

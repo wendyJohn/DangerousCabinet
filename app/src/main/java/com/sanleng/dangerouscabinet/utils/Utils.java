@@ -12,8 +12,6 @@ import android.net.NetworkInfo;
 import android.os.Environment;
 import android.util.Log;
 
-import com.sanleng.dangerouscabinet.data.SDBHelper;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -337,16 +335,16 @@ public class Utils {
     }
 
     //判断db文件是否存在
-    public static boolean foFile() {
-        boolean result = false;
-        String databaseFilename = SDBHelper.DB_DIRS + File.separator + "dangerconfig.db";
-        File file1 = new File(databaseFilename);
-        if (file1.exists()) {
-            // 如果已经存在就为true
-            result = true;
-        } else {
-            result = false;
-        }
-        return result;
-    }
+//    public static boolean foFile() {
+//        boolean result = false;
+//        String databaseFilename = SDBHelper.DB_DIRS + File.separator + "dangerconfig.db";
+//        File file1 = new File(databaseFilename);
+//        if (file1.exists()) {
+//            // 如果已经存在就为true
+//            result = true;
+//        } else {
+//            result = false;
+//        }
+//        return result;
+//    }
 }

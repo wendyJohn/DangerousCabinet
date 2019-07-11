@@ -20,7 +20,6 @@ import com.sanleng.dangerouscabinet.fid.entity.Lock;
 import com.sanleng.dangerouscabinet.model.PassModel;
 import com.sanleng.dangerouscabinet.ui.view.CodeEditView;
 import com.sanleng.dangerouscabinet.utils.PreferenceUtils;
-import com.sanleng.dangerouscabinet.utils.PreferencesUtil;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;
 
 /**

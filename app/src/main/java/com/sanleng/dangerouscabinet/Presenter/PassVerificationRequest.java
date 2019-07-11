@@ -29,7 +29,12 @@ public class PassVerificationRequest {
             @Override
             public void onResponse(Call<Pass> call, Response<Pass> response) {
                 try {
-                    passModel.PassSuccess(type + response.body().getData().getMsg(), response.body().getData().getUser_code(), response.body().getData().getUser_name(), type);
+                    if(response.body().getMsg().equals("验证成功")){
+                        passModel.PassSuccess(type + response.body().getMsg(), response.body().getData().getUser_code(), response.body().getData().getUser_name(), type);
+                    }else{
+                        passModel.PassSuccess(type + response.body().getMsg(),null, null, type);
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

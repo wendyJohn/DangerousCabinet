@@ -11,12 +11,7 @@ import com.sanleng.dangerouscabinet.utils.MessageEvent;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class Lock implements RS232ReadCallback {
     private volatile static Lock instance;
@@ -47,6 +42,7 @@ public class Lock implements RS232ReadCallback {
     final String OPENG = "68010702ffff16";
     private Context context;
     public long start;
+    private int i;
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
         @Override
@@ -101,10 +97,11 @@ public class Lock implements RS232ReadCallback {
         rs232Controllers.Rs232_Write(data);
     }
 
-//开启查询门锁状态
+    //开启查询门锁状态
     public void checkstatus() {
         handler.postDelayed(runnable, 5000);// 每5秒执行一次runnable.
     }
+
     //关闭查询门锁状态
     public void closestatus() {
         handler.removeCallbacks(runnable);//关闭定时器
@@ -286,7 +283,8 @@ public class Lock implements RS232ReadCallback {
                         System.out.println("收到数据长度：" + data.length);
                         System.out.println("收到开锁反馈：" + bytesToHexString(data));
                         if ((data[4] == 0x00) && (data[5] == 0x00)) {
-                            System.out.println(id + 1 + "号门开了.");
+                            System.out.println(id + 1 + "号门开了");
+                            i=0;
                         }
                     }
                 }
@@ -298,6 +296,13 @@ public class Lock implements RS232ReadCallback {
                         System.out.println("收到查询反馈：" + bytesToHexString(data));
                         String lockstatus = Integer.toBinaryString((data[10] & 0xFF) + 0x100).substring(1);
                         System.out.println("门状态：" + lockstatus);
+                        i++;
+                        System.out.println("========时间========"+i);
+                        if(i==5){
+                            MessageEvent messageEvent = new MessageEvent(MyApplication.MESSAGE_LOCKSTATE);
+                            EventBus.getDefault().post(messageEvent);
+                            i=0;
+                        }
 
                         if (data[10] == -1) {
                             System.out.println("门都已关闭");
@@ -393,4 +398,5 @@ public class Lock implements RS232ReadCallback {
         }
         return stringBuilder.toString();
     }
+
 }
