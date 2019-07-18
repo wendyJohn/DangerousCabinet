@@ -16,6 +16,7 @@
             android:layout_height="wrap_content"
             android:text="柜内详情"
             android:textSize="30sp"
+            android:textColor="@color/black"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
             />
@@ -38,6 +39,7 @@
             android:text="试剂RFID"
             android:layout_below="@id/viewa"
             android:textSize="20sp"
+            android:textColor="@color/black"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
             />
@@ -49,6 +51,7 @@
             android:text="危化品名称"
             android:layout_below="@id/rfid"
             android:textSize="20sp"
+            android:textColor="@color/black"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
             />
@@ -61,6 +64,7 @@
             android:text="化学品方程式"
             android:layout_below="@id/name"
             android:textSize="20sp"
+            android:textColor="@color/black"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
             />
@@ -72,6 +76,7 @@
             android:text="剩余容量"
             android:layout_below="@id/equation"
             android:textSize="20sp"
+            android:textColor="@color/black"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
             />
@@ -83,6 +88,7 @@
             android:text="化学品详情"
             android:layout_below="@id/balancedata"
             android:textSize="20sp"
+            android:textColor="@color/black"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginBottom="50dp"

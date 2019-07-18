@@ -19,14 +19,14 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
             android:drawableLeft="@mipmap/backs_icon" />
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
             android:layout_toRightOf="@+id/back"
             android:text="智能危化品柜"
             android:textColor="@color/white"
@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
             android:text="90S"
             android:visibility="gone"
@@ -48,19 +48,19 @@
             android:id="@+id/voc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/viewa"
             android:text="VOC \n 56"
             android:textColor="@color/white"
-            android:textSize="30sp" />
+            android:textSize="26sp" />
 
         <View
             android:id="@+id/viewa"
             android:layout_width="2dp"
-            android:layout_height="80dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
             android:layout_toLeftOf="@id/linear"
             android:background="@color/white" />
 
@@ -69,7 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="20dp"
             android:orientation="vertical">
 
@@ -77,10 +77,10 @@
                 android:id="@+id/temperature"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="3dp"
                 android:text="温度 27℃"
                 android:textColor="@color/white"
-                android:textSize="26sp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/humidity"
@@ -88,14 +88,14 @@
                 android:layout_height="wrap_content"
                 android:text="湿度 27%"
                 android:textColor="@color/white"
-                android:textSize="26sp" />
+                android:textSize="20sp" />
         </LinearLayout>
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp">
+       >
 
         <View
             android:id="@+id/viewb"
@@ -320,6 +320,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scrollbars="none" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/tips"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="100dp"
+            android:layout_marginTop="200dp"
+            android:layout_marginRight="100dp"
+            android:layout_marginBottom="150dp"
+            android:background="@drawable/text_rounded"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ListView
+                android:id="@+id/tipslistview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none" />
+
+            <Button
+                android:id="@+id/rescaling"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="开门重新过秤"
+                android:textSize="30dp"
+                android:layout_centerInParent="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="30dp"
+                android:background="#95a3f0"
+                android:textColor="@color/white"
+                />
 
         </RelativeLayout>
 

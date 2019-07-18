@@ -20,6 +20,7 @@ public class DBHelpers extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1; //数据库版本号
     private SQLiteDatabase db;
     private String filePath;  //数据库存储路径
+
     public DBHelpers(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         // 初始化数据库路径 (这个路径不能改变，因为是保存在内部安装文件夹中的，自己写的创建数据库也在这个路径下)
@@ -90,7 +91,7 @@ public class DBHelpers extends SQLiteOpenHelper {
         }
     }
 
-    public Cursor query(String sql, String... selectionArgs) {
+    public Cursor query(String sql, String[] selectionArgs) {
         return db.rawQuery(sql, selectionArgs);
     }
 
@@ -121,23 +122,30 @@ public class DBHelpers extends SQLiteOpenHelper {
         values.put("ChioBuildName", dangerous.getChioBuildName());
         values.put("ChioFloorName", dangerous.getChioFloorName());
         values.put("ChioRoomName", dangerous.getChioRoomName());
+        values.put("Tips", dangerous.getTips());
         db.insert("materialtable", null, values);
     }
 
     //更新危化品状态
-    public int update(String epc, String staus) {
+    public int update(String epc, String staus,String tips) {
         db = getWritableDatabase();
         ContentValues updatedValues = new ContentValues();
-        updatedValues.put("Staus", staus);
+        if(staus.equals("1")){
+            updatedValues.put("Staus", staus);
+            updatedValues.put("Tips", tips);
+        }else{
+            updatedValues.put("Staus", staus);
+        }
         String where = "Epc=" + "'" + epc + "'";
         return db.update("materialtable", updatedValues, where, null);
     }
 
     //更新危化品重量
-    public int updatebalancedata(String epc, String balancedata) {
+    public int updatebalancedata(String epc, String balancedata,String tips) {
         db = getWritableDatabase();
         ContentValues updatedValues = new ContentValues();
         updatedValues.put("Balancedata", balancedata);
+        updatedValues.put("Tips", tips);
         String where = "Epc=" + "'" + epc + "'";
         return db.update("materialtable", updatedValues, where, null);
     }
@@ -163,6 +171,5 @@ public class DBHelpers extends SQLiteOpenHelper {
         db = getWritableDatabase();
         db.delete("operationalrecords", null, null);
     }
-
 
 }

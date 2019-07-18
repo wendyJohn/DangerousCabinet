@@ -75,24 +75,22 @@ public class StockAdapter extends BaseAdapter {
         hold.name = convertView.findViewById(R.id.name);
         hold.equation = convertView.findViewById(R.id.equation);
         hold.weight = convertView.findViewById(R.id.weight);
-        hold.type = convertView.findViewById(R.id.type);
         hold.specifications = convertView.findViewById(R.id.specifications);
         hold.bottle = convertView.findViewById(R.id.bottle);
         hold.manufacturer = convertView.findViewById(R.id.manufacturer);
 
-        hold.rfid.setText("RFID:"+list.get(position).getRfid());
+        hold.rfid.setText("RFID:" + list.get(position).getRfid());
         hold.rfid.setTextColor(context.getResources().getColor(R.color.actionsheet_blue));
         hold.name.setText(list.get(position).getName());
-        hold.equation.setText(list.get(position).getEquation());
-        hold.weight.setText("当前重量 | " + list.get(position).getBalancedata());
-        hold.specifications.setText("规格重量 | " + list.get(position).getSpecifications());
+        hold.equation.setText(list.get(position).getEquation() + " - " + list.get(position).getAcidbase());
+        hold.weight.setText(list.get(position).getBalancedata()+"g");
+        hold.specifications.setText(list.get(position).getSpecifications()+"g");
         hold.manufacturer.setText("厂商: " + list.get(position).getManufacturer());
-        hold.type.setText(list.get(position).getAcidbase());
-        String bottle=list.get(position).getType();
-        if(bottle.equals("固体")){
+        String bottle = list.get(position).getType();
+        if (bottle.equals("固体")) {
             hold.bottle.setBackground(context.getResources().getDrawable(R.mipmap.solidbottle));
         }
-        if(bottle.equals("液体")){
+        if (bottle.equals("液体")) {
             hold.bottle.setBackground(context.getResources().getDrawable(R.mipmap.liquidbottle));
         }
 
@@ -104,7 +102,6 @@ public class StockAdapter extends BaseAdapter {
         public TextView name;
         public TextView equation;
         public TextView weight;
-        public TextView type;
         public TextView specifications;
         public TextView manufacturer;
         public ImageView bottle;

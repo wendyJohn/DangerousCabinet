@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView temperaturestate;
     private ImageView humiditystate;
     private RelativeLayout upmain;
-
     private ReaderService readerService = new ReaderServiceImpl();
     private Receiver receiver;
     public static final int TYPE_RGB_DEPTH_LIVENSS = 4;
@@ -96,16 +95,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         PreferencesUtil.putInt(GlobalSet.TYPE_CAMERA, GlobalSet.ORBBECATLAS);//设置摄像头样式；
         addData();//获取voc,温度，湿度。
         initTTS();//语音注册
-        new TimeThread().start();
+        new TimeThread().start();//时钟
         mOpenHelper = new DBHelpers(this);
-        ChemicalRequest.GetChemical(MainActivity.this,MyApplication.getMac());//导入最新的服务器化学品信息
+        ChemicalRequest.GetChemical(MainActivity.this,MyApplication.getMac());//导入最新的平台化学品信息
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         hideBottomUIMenu();
-
     }
 
     @Override
@@ -149,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Animation fananim = AnimationUtils.loadAnimation(this,
                 R.anim.rotate_circle_anim);
         fan.startAnimation(fananim);// 开始动画
+
         passwordauthentication.setOnClickListener(this);
         search.setOnClickListener(this);
         faceverification.setOnClickListener(this);

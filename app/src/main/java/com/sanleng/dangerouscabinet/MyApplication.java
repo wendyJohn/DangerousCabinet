@@ -11,6 +11,9 @@ public class MyApplication extends Application {
     public static final int MESSAGE_BANLANCEDATA = 0x1231542;
     public static final int MESSAGE_LOCKDATA = 0x12312356;
     public static final int MESSAGE_LOCKSTATE = 0x12332356;
+    public static final int MESSAGE_RESCAlING = 0x12865356;
+    public static final int MESSAGE_INVENSTORY = 0x12854356;
+    public static final int MESSAGE_REACQUISITION = 0x12823416;
     public static final int MESSAGE_TIME = 0x1254542;
     public static final String BROADCAST_ACTION_DISC = "com.permissions.myf_broadcast";
     public static final String BROADCAST_PERMISSION_DISC = "com.permissions.MYF_BROADCAST";

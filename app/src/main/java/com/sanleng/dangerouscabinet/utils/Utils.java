@@ -1,6 +1,7 @@
 package com.sanleng.dangerouscabinet.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,8 +10,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.util.Log;
+
+import com.sanleng.dangerouscabinet.MainActivity;
+import com.sanleng.dangerouscabinet.ui.activity.OperationActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,8 +30,9 @@ import java.util.ArrayList;
  */
 
 public class Utils {
+    public CountDownTimer countdowntimers;
+    private long advertisingTimes = 600 * 1000;//关门后无操作时返回首页
     public static final String TAG = "file-face";
-
     public static boolean saveBitmapToFile(String savePath, Bitmap bitmap) {
         boolean result = false;
         FileOutputStream out = null;

@@ -67,7 +67,7 @@ public class StorageAdapter extends BaseAdapter {
         ViewHold hold;
         if (convertView == null) {
             hold = new ViewHold();
-            convertView = LayoutInflater.from(context).inflate(R.layout.storage_item, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.storages_item, null);
             convertView.setTag(hold);
         } else {
             hold = (ViewHold) convertView.getTag();
@@ -76,24 +76,19 @@ public class StorageAdapter extends BaseAdapter {
         hold.name = convertView.findViewById(R.id.name);
         hold.equation = convertView.findViewById(R.id.equation);
         hold.weight = convertView.findViewById(R.id.weight);
-        hold.type = convertView.findViewById(R.id.type);
         hold.specifications = convertView.findViewById(R.id.specifications);
         hold.state = convertView.findViewById(R.id.state);
         hold.bottle = convertView.findViewById(R.id.bottle);
-        hold.usernamea = convertView.findViewById(R.id.usernamea);
-        hold.usernameb = convertView.findViewById(R.id.usernameb);
+        hold.username = convertView.findViewById(R.id.username);
         hold.manufacturer = convertView.findViewById(R.id.manufacturer);
 
         hold.rfid.setText("RFID:"+list.get(position).getRfid());
-        hold.rfid.setTextColor(context.getResources().getColor(R.color.actionsheet_blue));
         hold.name.setText(list.get(position).getName());
-        hold.equation.setText(list.get(position).getEquation());
-        hold.weight.setText("当前重量 | " + list.get(position).getBalancedata());
-        hold.specifications.setText("规格重量 | " + list.get(position).getSpecifications());
-        hold.usernamea.setText("操作人 | " + list.get(position).getUsernamea());
-        hold.usernameb.setText("操作人 | " + list.get(position).getUsernameb());
+        hold.equation.setText(list.get(position).getEquation()+" - "+list.get(position).getAcidbase());
+        hold.weight.setText(list.get(position).getBalancedata()+"g");
+        hold.specifications.setText(list.get(position).getSpecifications()+"g");
+        hold.username.setText(list.get(position).getUsernamea()+"  " + list.get(position).getUsernameb());
         hold.manufacturer.setText("厂商: " + list.get(position).getManufacturer());
-        hold.type.setText(list.get(position).getAcidbase());
         String state=list.get(position).getState();
         if(state.equals("in")){
             hold.state.setBackground(context.getResources().getDrawable(R.mipmap.storage_in));
@@ -117,10 +112,8 @@ public class StorageAdapter extends BaseAdapter {
         public TextView name;
         public TextView equation;
         public TextView weight;
-        public TextView type;
         public TextView specifications;
-        public TextView usernamea;
-        public TextView usernameb;
+        public TextView username;
         public TextView manufacturer;
         public ImageView state;
         public ImageView bottle;

@@ -139,7 +139,7 @@ public class ReturnItems extends AppCompatActivity implements View.OnClickListen
                     lastweighing.setText("上次称重结果：" + Balancedata);
                     TTSUtils.getInstance().speak("本次称重物品是" + Name + "重量为" + balancedata);
                     //更新本地重量并提交服务器,生成过秤记录
-                    mOpenHelper.updatebalancedata(epcs, balancedata);
+//                    mOpenHelper.updatebalancedata(epcs, balancedata);
                     mOpenHelper.insertweigh(epcs,Name,balancedata);//生成过秤记录。
 
                 }

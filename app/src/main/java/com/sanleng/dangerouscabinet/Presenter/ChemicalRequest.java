@@ -78,6 +78,7 @@ public class ChemicalRequest {
                         bean.setChioBuildName(chioBuildName);
                         bean.setChioFloorName(chioFloorName);
                         bean.setChioRoomName(chioRoomName);
+                        bean.setTips("未过秤");
                         mOpenHelper.insert(bean);
                     }
                 } catch (Exception e) {

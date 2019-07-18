@@ -19,8 +19,8 @@ public class Dangerous {
     String CurrentWeight;//规格重量
     String Manufacturer;//厂商
     String Threshold;//阈值
-
     String Describe;//描述
+    String Tips;//过秤提示
     String ChioUnitCode;
     String ChioBuildCode;
     String ChioFloorCode;
@@ -220,5 +220,13 @@ public class Dangerous {
 
     public void setChioRoomName(String chioRoomName) {
         ChioRoomName = chioRoomName;
+    }
+
+    public String getTips() {
+        return Tips;
+    }
+
+    public void setTips(String tips) {
+        Tips = tips;
     }
 }

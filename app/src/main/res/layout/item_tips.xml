@@ -22,8 +22,6 @@
                 android:id="@+id/sort"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:gravity="center"
                 android:text="排序"
                 android:textColor="@color/black"
                 android:textSize="30sp" />
@@ -54,12 +52,11 @@
                 android:id="@+id/weights"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:gravity="center"
                 android:text="重量"
                 android:textColor="@color/black"
                 android:textSize="30sp" />
         </LinearLayout>
     </LinearLayout>
+
+
 </LinearLayout>

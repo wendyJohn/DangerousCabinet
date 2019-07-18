@@ -12,7 +12,7 @@ import com.sanleng.dangerouscabinet.ui.bean.DangerousChemicals;
 
 import java.util.List;
 
-public class WeighAdapter extends BaseAdapter {
+public class TipsAdapter extends BaseAdapter {
 
     private Context context;//上下文对象
     private List<DangerousChemicals> dataList;//ListView显示的数据
@@ -23,7 +23,7 @@ public class WeighAdapter extends BaseAdapter {
      * @param context  上下文对象
      * @param dataList 数据
      */
-    public WeighAdapter(Context context, List<DangerousChemicals> dataList) {
+    public TipsAdapter(Context context, List<DangerousChemicals> dataList) {
         this.context = context;
         this.dataList = dataList;
     }
@@ -48,15 +48,14 @@ public class WeighAdapter extends BaseAdapter {
         ViewHolder viewHolder;
         //判断是否有缓存
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_weigh, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_tips, null);
             viewHolder = new ViewHolder(convertView);
             convertView.setTag(viewHolder);
         } else {
             //得到缓存的布局
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        int i=position+1;
-        viewHolder.sort.setText(i+"");
+        viewHolder.sort.setText(dataList.get(position).getRfid());
         viewHolder.name.setText(dataList.get(position).getName());
         viewHolder.weights.setText(dataList.get(position).getBalancedata()+"g");
         return convertView;

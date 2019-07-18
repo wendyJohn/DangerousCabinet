@@ -35,13 +35,17 @@ import com.sanleng.dangerouscabinet.fid.service.CallBackStopReadCard;
 import com.sanleng.dangerouscabinet.fid.service.ReaderService;
 import com.sanleng.dangerouscabinet.fid.tool.ReaderUtil;
 import com.sanleng.dangerouscabinet.fid.util.DataFilter;
+import com.sanleng.dangerouscabinet.model.StorckModel;
 import com.sanleng.dangerouscabinet.ui.adapter.StockAdapter;
 import com.sanleng.dangerouscabinet.ui.adapter.StorageAdapter;
+import com.sanleng.dangerouscabinet.ui.adapter.TipsAdapter;
 import com.sanleng.dangerouscabinet.ui.adapter.WeighAdapter;
 import com.sanleng.dangerouscabinet.ui.bean.DangerousChemicals;
 import com.sanleng.dangerouscabinet.utils.MessageEvent;
 import com.sanleng.dangerouscabinet.utils.PreferenceUtils;
+import com.sanleng.dangerouscabinet.utils.StockData;
 import com.sanleng.dangerouscabinet.utils.TTSUtils;
+import com.sanleng.dangerouscabinet.utils.TipsDialog;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -57,28 +61,31 @@ import java.util.List;
 /**
  * 操作&&记录
  */
-public class OperationActivity extends AppCompatActivity implements View.OnClickListener {
+public class OperationActivity extends AppCompatActivity implements View.OnClickListener ,StorckModel {
     ReaderService readerService = new ReaderServiceImpl();
     private List<EPC> listEPC;
     private List<String> listEpc;
     private TextView back;
     public CountDownTimer countdowntimers;
-    private long advertisingTimes = 10 * 1000;//关门后无操作时返回首页
+    private long advertisingTimes = 600 * 1000;//关门后无操作时返回首页
     private TextView countdown;
     private DBHelpers mOpenHelper;
     private ImageView fans;
     private TextView weighhints;//称重提示
     private RelativeLayout weigh;//称重界面
+    private RelativeLayout tipsview;//未称重界面
     private RelativeLayout returnhints;//还取提示界面
     private FrameLayout fragment;//还取提示与称重界面
     private ListView weighlistview;//称重数据展示界面
     private ListView storagelistview;//存放数据展示界面
     private ListView inventorylistview;//库存数据展示界面
+    private ListView tipslistview;//未称重数据展示界面
     private List<DangerousChemicals> dataList = new ArrayList<>();//存储数据
     private WeighAdapter weighAdapter;//ListView的数据适配器
     private RelativeLayout inventory;//盘点记录界面
     private Button accessrecords;//盘点记录界面
     private Button inventoryrecords;//盘点记录界面
+    private Button rescaling;//开门重新过秤
     private LinearLayout linears;//存放tab选项界面
     private LinearLayout linearb;//库存tab选项界面
     private TextView allrecords;//全部记录
@@ -86,12 +93,11 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
     private TextView removerecords;//取出记录
     private TextView inventory_in;//柜内库存
     private TextView inventory_out;//柜外库存
-    private JSONArray Depositarray;
+    private JSONArray Depositarray = new JSONArray();;
     private List<DangerousChemicals> list = new ArrayList<>();
     private List<DangerousChemicals> depositlist = new ArrayList<>();
     private List<DangerousChemicals> taskuotlist = new ArrayList<>();
-    private List<DangerousChemicals> stocklista;//柜内
-    private List<DangerousChemicals> stocklistb;//柜外
+    private List<DangerousChemicals> tipslist;
     private MediaPlayer mediaPlayer;
 
     @Override
@@ -113,6 +119,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
         countdown = findViewById(R.id.countdown);
         weighhints = findViewById(R.id.weighhints);//称重提示
         weigh = findViewById(R.id.weigh);//称重界面
+        tipsview = findViewById(R.id.tips);//未称重界面
         returnhints = findViewById(R.id.returnhints);//还取提示界面
         fragment = findViewById(R.id.fragment);//还取提示界面
         inventory = findViewById(R.id.inventory);//盘点界面
@@ -121,10 +128,13 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 R.anim.rotate_circle_anim);
         fans.startAnimation(fananim);// 开始动画
         weighlistview = findViewById(R.id.weighlistview);
+        tipslistview = findViewById(R.id.tipslistview);
         storagelistview = findViewById(R.id.storagelistview);//存放数据展示界面
         inventorylistview = findViewById(R.id.inventorylistview);//库存数据展示界面
         accessrecords = findViewById(R.id.accessrecords);//打开盘点记录界面
         accessrecords.setOnClickListener(this);
+        rescaling = findViewById(R.id.rescaling);//开门重新过秤
+        rescaling.setOnClickListener(this);
         inventoryrecords = findViewById(R.id.inventoryrecords);//打开盘点记录界面
         inventoryrecords.setOnClickListener(this);
         linears = findViewById(R.id.linears);//存放tab选项界面
@@ -152,7 +162,6 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
             mediaPlayer.setDataSource(file.getFileDescriptor(),
                     file.getStartOffset(), file.getLength());
             file.close();
-//            mediaPlayer.setVolume(BEEP_VOLUME, BEEP_VOLUME);
             mediaPlayer.prepare();
         } catch (IOException ioe) {
             mediaPlayer = null;
@@ -223,6 +232,8 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 System.out.println("=======EPC大小========" + listEPC.size());
                 if (listEPC.size() <= 0) {
                     readerService.stopInvV2(ReaderUtil.readers, new StopReadData());
+                    TipsDialog tipsDialog = new TipsDialog(OperationActivity.this, "危化品信息获取失败，请重新获取", "重新获取危化品信息");
+                    tipsDialog.show();
                     return;
                 }
                 // 等待2000毫秒后获取卡号，并比对。
@@ -241,12 +252,13 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                     String Name = cursor.getString(cursor.getColumnIndex("Name"));
                     weighhints.setVisibility(View.VISIBLE);//称重提示打开
                     weigh.setVisibility(View.VISIBLE);//称重界面打开
+                    tipsview.setVisibility(View.GONE);//未称重界面关闭
                     returnhints.setVisibility(View.GONE);//还取提示界面关闭
                     inventory.setVisibility(View.GONE);//盘点界面关闭
-                    fragment.setVisibility(View.VISIBLE);//归还提示和称重界面关闭
+                    fragment.setVisibility(View.VISIBLE);
                     TTSUtils.getInstance().speak("本次称重物品是" + Name + "重量为" + balancedata);
                     //更新本地重量并提交服务器,生成过秤记录
-                    mOpenHelper.updatebalancedata(epcs, balancedata);//更新数据重量并提交更新服务器数据
+                    mOpenHelper.updatebalancedata(epcs, balancedata,"已过秤");//更新数据重量并提交更新服务器数据
                     mOpenHelper.insertweigh(epcs, Name, balancedata);//生成过秤记录。
                     DangerousChemicals bean = new DangerousChemicals();
                     bean.setName(Name);
@@ -271,7 +283,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
     public void invOnce() {
         listEPC = new ArrayList<>();
         listEpc = new ArrayList<>();
-        Depositarray = new JSONArray();
+        tipslist = new ArrayList<>();
         if (null == ReaderUtil.readers) {
             System.out.println("请先连接设备");
             return;
@@ -284,6 +296,9 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 System.out.println("=======EPC大小========" + listEPC.size());
                 if (listEPC.size() <= 0) {
                     readerService.stopInvV2(ReaderUtil.readers, new StopReadData());
+                    //提示盘点失败，请重新盘点
+                    TipsDialog tipsDialog = new TipsDialog(OperationActivity.this, "盘点失败请重新盘点", "重新盘点");
+                    tipsDialog.show();
                     return;
                 }
                 // 等待2000毫秒后获取卡号，并比对。
@@ -299,11 +314,9 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 while (cursor.moveToNext()) {
                     String epcs = cursor.getString(cursor.getColumnIndex("Epc"));
                     String staus = cursor.getString(cursor.getColumnIndex("Staus"));
-                    String ant = cursor.getString(cursor.getColumnIndex("Ant"));
                     String ids = cursor.getString(cursor.getColumnIndex("Ids"));
                     String StationName = cursor.getString(cursor.getColumnIndex("StationName"));
                     String StationId = cursor.getString(cursor.getColumnIndex("StationId"));
-                    String StorageLocation = cursor.getString(cursor.getColumnIndex("StorageLocation"));
                     String Name = cursor.getString(cursor.getColumnIndex("Name"));
                     String Balancedata = cursor.getString(cursor.getColumnIndex("Balancedata"));
                     String Equation = cursor.getString(cursor.getColumnIndex("Equation"));
@@ -319,6 +332,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                     String chioBuildName = cursor.getString(cursor.getColumnIndex("ChioBuildName"));
                     String chioFloorName = cursor.getString(cursor.getColumnIndex("ChioFloorName"));
                     String chioRoomName = cursor.getString(cursor.getColumnIndex("ChioRoomName"));
+                    String tips = cursor.getString(cursor.getColumnIndex("Tips"));
 
                     JSONObject object = new JSONObject();
                     DangerousChemicals bean = new DangerousChemicals();
@@ -326,53 +340,53 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                     if (exists) {
                         System.out.println(epcs + "有卡号信息！");//当有卡时判断状态，如果是出库状态则认为现在为入库。
                         if (staus.equals("1")) {
-                            System.out.println(epcs + "物资入库");
-                            mOpenHelper.update(epcs, "2");
-                            bean.setRfid(epcs);
-                            bean.setName(Name);
-                            bean.setState("in");
-                            bean.setEquation(Equation);
-                            bean.setAcidbase(Acidbase);
-                            bean.setType(Type);
-                            bean.setBalancedata(Balancedata);
-                            bean.setSpecifications(CurrentWeight);
-                            bean.setManufacturer(Manufacturer);
-                            bean.setUsernamea(PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));
-                            bean.setUsernameb(PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));
-                            list.add(bean);
-                            depositlist.add(bean);
-                            //危化品入库时判断是否已过秤，未过秤给予提示
-//                            Cursor cursors = mOpenHelper.query("select * from operationalrecords where Epc=" + "'" + epcs + "'", null);
-//                            while (cursors.moveToNext()) {
-//                                String Names = cursor.getString(cursor.getColumnIndex("Name"));
-//                                TTSUtils.getInstance().speak("请注意，当前您有危化品未过秤。");
-//                            }
-//                            cursors.close();
-                            //统计本次物品入库的操作记录
-                            try {
-                                object.put("chioRfid", epcs);//RFID
-                                object.put("chioType", "2");//危化品状态
-                                object.put("chioSubstanceCode", ids);//危化品ID
-                                object.put("chioSubstanceName", Name);//危化品名称
-                                object.put("chioSubstanceFormula", Equation);//危化品方程式
-                                object.put("chioNum", Balancedata);//危化品当前重量
-                                object.put("chioChemicalStoreCode", StationId);//站点ID
-                                object.put("chioChemicalStoreName", StationName);//站点名称
-                                object.put("chioUserName1", PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));//操作人A
-                                object.put("chioUserName2", PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));//操作人B
-                                object.put("chioUserCode1", PreferenceUtils.getString(OperationActivity.this, "chioUserCode1"));//操作人CODEA
-                                object.put("chioUserCode2", PreferenceUtils.getString(OperationActivity.this, "chioUserCode2"));//操作人CODEB
-                                object.put("chioUnitCode", chioUnitCode);
-                                object.put("chioBuildCode", chioBuildCode);
-                                object.put("chioFloorCode", chioFloorCode);
-                                object.put("chioRoomCode", chioRoomCode);
-                                object.put("chioUnitName", chioUnitName);
-                                object.put("chioBuildName", chioBuildName);
-                                object.put("chioFloorName", chioFloorName);
-                                object.put("chioRoomName", chioRoomName);
-                                Depositarray.put(object);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                            if (tips.equals("未过秤")) {
+                                bean.setRfid(epcs);
+                                bean.setName(Name);
+                                bean.setBalancedata("未过秤");
+                                tipslist.add(bean);
+                            } else {
+                                System.out.println(epcs + "物资入库");
+                                mOpenHelper.update(epcs, "2", "");
+                                bean.setRfid(epcs);
+                                bean.setName(Name);
+                                bean.setState("in");
+                                bean.setEquation(Equation);
+                                bean.setAcidbase(Acidbase);
+                                bean.setType(Type);
+                                bean.setBalancedata(Balancedata);
+                                bean.setSpecifications(CurrentWeight);
+                                bean.setManufacturer(Manufacturer);
+                                bean.setUsernamea(PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));
+                                bean.setUsernameb(PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));
+                                list.add(bean);
+                                depositlist.add(bean);
+                                //统计本次物品入库的操作记录
+                                try {
+                                    object.put("chioRfid", epcs);//RFID
+                                    object.put("chioType", "2");//危化品状态
+                                    object.put("chioSubstanceCode", ids);//危化品ID
+                                    object.put("chioSubstanceName", Name);//危化品名称
+                                    object.put("chioSubstanceFormula", Equation);//危化品方程式
+                                    object.put("chioNum", Balancedata);//危化品当前重量
+                                    object.put("chioChemicalStoreCode", StationId);//站点ID
+                                    object.put("chioChemicalStoreName", StationName);//站点名称
+                                    object.put("chioUserName1", PreferenceUtils.getString(OperationActivity.this, "chioUserName1"));//操作人A
+                                    object.put("chioUserName2", PreferenceUtils.getString(OperationActivity.this, "chioUserName2"));//操作人B
+                                    object.put("chioUserCode1", PreferenceUtils.getString(OperationActivity.this, "chioUserCode1"));//操作人CODEA
+                                    object.put("chioUserCode2", PreferenceUtils.getString(OperationActivity.this, "chioUserCode2"));//操作人CODEB
+                                    object.put("chioUnitCode", chioUnitCode);
+                                    object.put("chioBuildCode", chioBuildCode);
+                                    object.put("chioFloorCode", chioFloorCode);
+                                    object.put("chioRoomCode", chioRoomCode);
+                                    object.put("chioUnitName", chioUnitName);
+                                    object.put("chioBuildName", chioBuildName);
+                                    object.put("chioFloorName", chioFloorName);
+                                    object.put("chioRoomName", chioRoomName);
+                                    Depositarray.put(object);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
                     }
@@ -381,7 +395,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                         System.out.println(epcs + "无卡号信息！");
                         if (staus.equals("2")) {
                             System.out.println(epcs + "物资出库");//更新物资状态，并修改为未过秤状态
-                            mOpenHelper.update(epcs, "1");
+                            mOpenHelper.update(epcs, "1", "未过秤");
                             bean.setRfid(epcs);
                             bean.setName(Name);
                             bean.setState("out");
@@ -425,71 +439,32 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
                 cursor.close();
-                //提交盘点数据,并展示。
-                System.out.println("========Array大小============" + Depositarray.length());
-                //提交服务器
-                if (Depositarray.length() > 0) {
-                    fragment.setVisibility(View.GONE);//归还提示和称重界面关闭
-                    inventory.setVisibility(View.VISIBLE);//盘点界面打开
-                    StorageAdapter storageAdapter = new StorageAdapter(OperationActivity.this, list);
-                    storagelistview.setAdapter(storageAdapter);
-                    AccessRequest.GetAccessRecords(OperationActivity.this, Depositarray);
-                    startTime();
+                if (tipslist.size() > 0) {
+                    TTSUtils.getInstance().speak("以下是您本次未过秤记录,请重新过秤");
+                    weighhints.setText("以下是您本次未过秤记录");
+                    weighhints.setVisibility(View.VISIBLE);//称重提示打开
+                    weigh.setVisibility(View.GONE);//称重界面打开
+                    tipsview.setVisibility(View.VISIBLE);//未称重界面关闭
+                    returnhints.setVisibility(View.GONE);//还取提示界面关闭
+                    inventory.setVisibility(View.GONE);//盘点界面关闭
+                    fragment.setVisibility(View.VISIBLE);
+                    TipsAdapter tipsAdapter = new TipsAdapter(OperationActivity.this, tipslist);
+                    tipslistview.setAdapter(tipsAdapter);
+                    return;
+                } else {
+                    //提交盘点数据,并展示。
+                    if (Depositarray.length() > 0) {
+                        fragment.setVisibility(View.GONE);//归还提示和称重界面关闭
+                        inventory.setVisibility(View.VISIBLE);//盘点界面打开
+                        StorageAdapter storageAdapter = new StorageAdapter(OperationActivity.this, list);
+                        storagelistview.setAdapter(storageAdapter);
+                        AccessRequest.GetAccessRecords(OperationActivity.this, Depositarray);
+                    }
+                    startTime();//启动界面监听
                 }
             }
         }, 2000);
     }
-
-    //库存信息
-    private void Stock(String state) {
-        stocklista = new ArrayList<>();//柜内
-        stocklistb = new ArrayList<>();//柜外
-        Cursor cursor = mOpenHelper.query("select * from materialtable", null);
-        while (cursor.moveToNext()) {
-            String epcs = cursor.getString(cursor.getColumnIndex("Epc"));
-            String staus = cursor.getString(cursor.getColumnIndex("Staus"));
-            String Name = cursor.getString(cursor.getColumnIndex("Name"));
-            String Balancedata = cursor.getString(cursor.getColumnIndex("Balancedata"));
-            String Equation = cursor.getString(cursor.getColumnIndex("Equation"));
-            String Acidbase = cursor.getString(cursor.getColumnIndex("Acidbase"));
-            String Type = cursor.getString(cursor.getColumnIndex("Type"));
-            String CurrentWeight = cursor.getString(cursor.getColumnIndex("CurrentWeight"));
-            String Manufacturer = cursor.getString(cursor.getColumnIndex("Manufacturer"));
-            if (staus.equals("1")) {
-                DangerousChemicals bean = new DangerousChemicals();
-                bean.setRfid(epcs);
-                bean.setName(Name);
-                bean.setEquation(Equation);
-                bean.setAcidbase(Acidbase);
-                bean.setType(Type);
-                bean.setBalancedata(Balancedata);
-                bean.setSpecifications(CurrentWeight);
-                bean.setManufacturer(Manufacturer);
-                stocklista.add(bean);
-            } else {
-                DangerousChemicals bean = new DangerousChemicals();
-                bean.setRfid(epcs);
-                bean.setName(Name);
-                bean.setEquation(Equation);
-                bean.setAcidbase(Acidbase);
-                bean.setType(Type);
-                bean.setBalancedata(Balancedata);
-                bean.setSpecifications(CurrentWeight);
-                bean.setManufacturer(Manufacturer);
-                stocklistb.add(bean);
-            }
-        }
-        cursor.close();
-
-        if (state.equals("out")) {
-            StockAdapter stockAdaptera = new StockAdapter(OperationActivity.this, stocklista);
-            inventorylistview.setAdapter(stockAdaptera);
-        } else {
-            StockAdapter stockAdapterb = new StockAdapter(OperationActivity.this, stocklistb);
-            inventorylistview.setAdapter(stockAdapterb);
-        }
-    }
-
 
     /**
      * 门未关的时间的监听
@@ -544,7 +519,7 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 linearb.setVisibility(View.VISIBLE);
                 storagelistview.setVisibility(View.GONE);
                 inventorylistview.setVisibility(View.VISIBLE);
-                Stock("in");
+                StockData.Stock(getApplicationContext(), OperationActivity.this, "2");
                 break;
             //打开全部记录界面
             case R.id.allrecords:
@@ -578,14 +553,19 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
                 linearb.setBackground(OperationActivity.this.getResources().getDrawable(R.mipmap.inventory_taba));
                 inventory_out.setTextColor(OperationActivity.this.getResources().getColor(R.color.black));
                 inventory_in.setTextColor(OperationActivity.this.getResources().getColor(R.color.white));
-                Stock("in");
+                StockData.Stock(getApplicationContext(), OperationActivity.this, "2");
                 break;
             //打开柜外库存
             case R.id.inventory_out:
                 linearb.setBackground(OperationActivity.this.getResources().getDrawable(R.mipmap.inventory_tabb));
                 inventory_in.setTextColor(OperationActivity.this.getResources().getColor(R.color.black));
                 inventory_out.setTextColor(OperationActivity.this.getResources().getColor(R.color.white));
-                Stock("out");
+                StockData.Stock(getApplicationContext(), OperationActivity.this, "1");
+                break;
+            //开门重新过秤
+            case R.id.rescaling:
+                Lock.getInstance().sendA();//开门
+                Lock.getInstance().checkstatus();//查询门的状态
                 break;
         }
     }
@@ -605,6 +585,17 @@ public class OperationActivity extends AppCompatActivity implements View.OnClick
             int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
             decorView.setSystemUiVisibility(uiOptions);
+        }
+    }
+
+    @Override
+    public void StokSuccess(String state, List<DangerousChemicals> stocklist) {
+        if (state.equals("1")) {
+            StockAdapter stockAdapter = new StockAdapter(OperationActivity.this, stocklist);
+            inventorylistview.setAdapter(stockAdapter);
+        } else {
+            StockAdapter stockAdapter = new StockAdapter(OperationActivity.this, stocklist);
+            inventorylistview.setAdapter(stockAdapter);
         }
     }
 
